@@ -3,6 +3,7 @@ import { useToast } from '../../context/ToastContext';
 import Button from '../../components/forms/Button';
 import Input from '../../components/forms/Input';
 import { useNavigate } from 'react-router-dom';
+import { apiUrl } from '../../api';
 
 interface Skill {
   id: string;
@@ -27,7 +28,7 @@ const SkillManagement: React.FC = () => {
 
   const fetchSkills = useCallback(async () => {
     try {
-      const response = await fetch('/api/v1/skills');
+      const response = await fetch(apiUrl('/skills'));
       if (response.ok) {
         const data = await response.json();
         setSkills(data);
@@ -79,7 +80,7 @@ const SkillManagement: React.FC = () => {
   const uploadImage = async (file: File): Promise<string> => {
     const formData = new FormData();
     formData.append('file', file);
-    const response = await fetch('/api/v1/upload/image', {
+    const response = await fetch(apiUrl('/upload/image'), {
       method: 'POST',
       body: formData,
     });
@@ -99,7 +100,7 @@ const SkillManagement: React.FC = () => {
       if (selectedIcon) {
         iconUrl = await uploadImage(selectedIcon);
       }
-      const url = isEditing ? `/api/v1/skills/${currentSkill.id}` : '/api/v1/skills';
+      const url = isEditing ? apiUrl(`/skills/${currentSkill.id}`) : apiUrl('/skills');
       const method = isEditing ? 'PUT' : 'POST';
       const response = await fetch(url, {
         method,
@@ -130,7 +131,7 @@ const SkillManagement: React.FC = () => {
     if (!window.confirm('Are you sure you want to delete this skill?')) return;
 
     try {
-      const response = await fetch(`/api/v1/skills/${id}`, {
+      const response = await fetch(apiUrl(`/skills/${id}`), {
         method: 'DELETE',
       });
 

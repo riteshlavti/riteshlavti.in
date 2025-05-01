@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { blogPosts as staticBlogPosts } from '../data/blogData';
+import { apiUrl } from '../api';
 
 function formatDate(dateStr: string): string {
   if (!dateStr) return '';
@@ -20,7 +21,7 @@ const Blog: React.FC = () => {
   useEffect(() => {
     const fetchDbPosts = async () => {
       try {
-        const response = await fetch('/api/v1/blog/');
+        const response = await fetch(apiUrl('/blog/'));
         if (response.ok) {
           const dbPosts = await response.json();
           // Merge db posts into blogData by slug

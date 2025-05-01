@@ -5,6 +5,7 @@ import Input from '../../components/forms/Input';
 import { useNavigate } from 'react-router-dom';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
+import { apiUrl } from '../../api';
 
 interface BlogPost {
   id: string;
@@ -52,7 +53,7 @@ const BlogManagement: React.FC = () => {
 
   const fetchPosts = useCallback(async () => {
     try {
-      const response = await fetch('/api/v1/blog/');
+      const response = await fetch(apiUrl('/blog/'));
       if (response.ok) {
         const data = await response.json();
         setPosts(data);
@@ -151,7 +152,7 @@ const BlogManagement: React.FC = () => {
         image: imageUrl,
       };
 
-      const url = isEditing ? `/api/v1/blog/${currentPost.slug}` : '/api/v1/blog/';
+      const url = isEditing ? apiUrl(`/blog/${currentPost.slug}`) : apiUrl('/blog/');
       const method = isEditing ? 'PUT' : 'POST';
 
       const response = await fetch(url, {
@@ -184,9 +185,7 @@ const BlogManagement: React.FC = () => {
     if (!window.confirm('Are you sure you want to delete this post?')) return;
 
     try {
-      const response = await fetch(`/api/v1/blog/${slug}`, {
-        method: 'DELETE',
-      });
+      const response = await fetch(apiUrl(`/blog/${slug}`), { method: 'DELETE' });
 
       if (response.ok) {
         showToast('Blog post deleted successfully', 'success');
@@ -201,7 +200,7 @@ const BlogManagement: React.FC = () => {
 
   const handleEdit = async (post: BlogPost) => {
     try {
-      const response = await fetch(`/api/v1/blog/${post.slug}`);
+      const response = await fetch(apiUrl(`/blog/${post.slug}`));
       if (response.ok) {
         const data = await response.json();
         console.log('Fetched blog post data:', data); // Debug log

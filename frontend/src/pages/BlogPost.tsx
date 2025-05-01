@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { blogPosts as staticBlogPosts } from '../data/blogData';
 import { FaXTwitter, FaWhatsapp } from 'react-icons/fa6';
+import { apiUrl } from '../api';
 
 interface Comment {
   id: string;
@@ -43,7 +44,7 @@ const BlogPost: React.FC = () => {
         setLoading(false);
       } else if (id) {
         try {
-          const response = await fetch(`/api/v1/blog/${id}`);
+          const response = await fetch(apiUrl(`/blog/${id}`));
           if (response.ok) {
             const data = await response.json();
             setBlogPost(data);

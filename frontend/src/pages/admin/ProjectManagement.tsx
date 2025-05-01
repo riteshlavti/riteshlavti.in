@@ -5,6 +5,7 @@ import Input from '../../components/forms/Input';
 import { useNavigate } from 'react-router-dom';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
+import { apiUrl } from '../../api';
 
 interface Project {
   id: string;
@@ -33,7 +34,7 @@ const ProjectManagement: React.FC = () => {
 
   const fetchProjects = useCallback(async () => {
     try {
-      const response = await fetch('/api/v1/projects');
+      const response = await fetch(apiUrl('/projects'));
       if (response.ok) {
         const data = await response.json();
         setProjects(data);
@@ -86,7 +87,7 @@ const ProjectManagement: React.FC = () => {
   const uploadImage = async (file: File): Promise<string> => {
     const formData = new FormData();
     formData.append('file', file);
-    const response = await fetch('/api/v1/upload/image', {
+    const response = await fetch(apiUrl('/upload/image'), {
       method: 'POST',
       body: formData,
     });
@@ -111,7 +112,7 @@ const ProjectManagement: React.FC = () => {
         image_url: imageUrl,
         technologies: technologies.split(',').map(tech => tech.trim()),
       };
-      const url = isEditing ? `/api/v1/projects/${currentProject.id}` : '/api/v1/projects';
+      const url = isEditing ? apiUrl(`/projects/${currentProject.id}`) : apiUrl('/projects');
       const method = isEditing ? 'PUT' : 'POST';
       const response = await fetch(url, {
         method,
@@ -142,9 +143,7 @@ const ProjectManagement: React.FC = () => {
     if (!window.confirm('Are you sure you want to delete this project?')) return;
 
     try {
-      const response = await fetch(`/api/v1/projects/${id}`, {
-        method: 'DELETE',
-      });
+      const response = await fetch(apiUrl(`/projects/${id}`), { method: 'DELETE' });
 
       if (response.ok) {
         showToast('Project deleted successfully', 'success');
