@@ -24,7 +24,7 @@ class Settings(BaseSettings):
         return "backend/portfolio.db"
     
     # CORS
-    BACKEND_CORS_ORIGINS: List[str] = ["http://localhost:3000", "http://127.0.0.1:3000", "https://www.riteshlavti-in.vercel.app"]
+    BACKEND_CORS_ORIGINS: List[str] = ["http://localhost:3000", "http://127.0.0.1:3000", "https://riteshlavti-in.vercel.app"]
     
     # File Upload
     MAX_UPLOAD_SIZE: int = int(os.getenv("MAX_UPLOAD_SIZE", "5242880"))  # 5MB in bytes

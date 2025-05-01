@@ -109,7 +109,7 @@ const BlogManagement: React.FC = () => {
     const formData = new FormData();
     formData.append('file', file);
 
-    const response = await fetch('/api/v1/upload/image', {
+    const response = await fetch(apiUrl('/upload/image'), {
       method: 'POST',
       body: formData,
     });
