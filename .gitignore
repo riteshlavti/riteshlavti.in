@@ -1,0 +1,92 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+frontend/node_modules
+backend/__pycache__
+node_modules
+/.pnp
+.pnp.js
+backend/venv
+# Frontend build files
+frontend/build/
+frontend/dist/
+frontend/.next/
+frontend/out/
+
+# Frontend dependency directories
+frontend/.npm
+frontend/.yarn
+frontend/.pnp
+frontend/.cache
+frontend/coverage/
+
+# Backend Python files
+backend/**/__pycache__/
+backend/**/*.py[cod]
+backend/**/*$py.class
+backend/dist/
+backend/build/
+backend/*.egg-info/
+backend/.eggs/
+backend/.Python
+
+# Backend virtual environments
+backend/.env
+backend/.venv
+backend/env/
+backend/ENV/
+backend/venv/
+
+# Backend dependencies
+backend/lib/
+backend/lib64/
+backend/bin/
+backend/include/
+
+# IDE specific files
+.idea/
+.vscode/
+*.swp
+*.swo
+*.swn
+*.bak
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Database files
+backend/*.db
+backend/*.sqlite3
+
+# testing
+/coverage
+# production
+/build
+
+# misc
+.DS_Store
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+#add all pychaches modules from backend
+backend/**/__pycache__/
+backend/**/*.py[cod]
+backend/**/*$py.class
+backend/dist/
+backend/build/
+backend/*.egg-info/
+backend/.eggs/
+backend/.Python
+backend/.env
+backend/.venv
+backend/env/
+backend/ENV/
+backend/venv/   
+backend/app/api/endpoints/__pycache__/
