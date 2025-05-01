@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from app.api.endpoints import blog as blog_api, comments, projects, skills, contact, upload, auth as auth_api
+from app.api.endpoints import blog as blog_api, projects, skills, contact, upload, auth as auth_api
 from app.core.config import settings
 from app.db.database import Base, engine
 from app.models import blog as blog_models  # For model registration only
@@ -28,7 +28,6 @@ app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
 
 # Include routers
 app.include_router(blog_api.router, prefix=f"{settings.API_V1_STR}/blog", tags=["blog"])
-app.include_router(comments.router, prefix=f"{settings.API_V1_STR}/comments", tags=["comments"])
 app.include_router(projects.router, prefix=f"{settings.API_V1_STR}/projects", tags=["projects"])
 app.include_router(skills.router, prefix=f"{settings.API_V1_STR}/skills", tags=["skills"])
 app.include_router(contact.router, prefix=f"{settings.API_V1_STR}/contact", tags=["contact"])

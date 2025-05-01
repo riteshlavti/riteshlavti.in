@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from sqlalchemy.orm import Session
 from sqlalchemy import select, func
 from typing import List
@@ -16,7 +16,8 @@ def get_blog_posts(
     limit: int = Query(10, ge=1, le=100),
     category_slug: str = None,
     tag_slug: str = None,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    request: Request = None
 ):
     query = db.query(BlogPost)
     
@@ -27,17 +28,33 @@ def get_blog_posts(
         query = query.join(BlogPost.tags).filter(Tag.slug == tag_slug)
     
     posts = query.offset(skip).limit(limit).all()
-    return posts
+    # Convert related_posts and tags to list for each post
+    results = []
+    for post in posts:
+        item = post.__dict__.copy()
+        item['related_posts'] = post.related_posts.split(',') if post.related_posts else []
+        item['tags'] = [tag.name for tag in post.tags]  # or tag.slug
+        # Fix featured_image to be absolute URL
+        if item.get('featured_image') and item['featured_image'].startswith('/uploads/'):
+            item['featured_image'] = str(request.base_url).rstrip('/') + item['featured_image']
+        results.append(item)
+    return results
 
 @router.get("/{slug}", response_model=BlogPostSchema)
-def get_blog_post(slug: str, db: Session = Depends(get_db)):
+def get_blog_post(slug: str, db: Session = Depends(get_db), request: Request = None):
     post = db.query(BlogPost).filter(BlogPost.slug == slug).first()
     if post is None:
         raise HTTPException(status_code=404, detail="Blog post not found")
-    return post
+    result = post.__dict__.copy()
+    result['related_posts'] = post.related_posts.split(',') if post.related_posts else []
+    result['tags'] = [tag.name for tag in post.tags]  # or tag.slug
+    # Fix featured_image to be absolute URL
+    if result.get('featured_image') and result['featured_image'].startswith('/uploads/'):
+        result['featured_image'] = str(request.base_url).rstrip('/') + result['featured_image']
+    return result
 
 @router.post("/", response_model=BlogPostSchema)
-def create_blog_post(post: BlogPostCreate, db: Session = Depends(get_db)):
+def create_blog_post(post: BlogPostCreate, db: Session = Depends(get_db), request: Request = None):
     base_slug = slugify(post.title)
     slug = base_slug
     i = 1
@@ -51,18 +68,30 @@ def create_blog_post(post: BlogPostCreate, db: Session = Depends(get_db)):
         content=post.content,
         excerpt=post.excerpt,
         featured_image=post.featured_image,
-        is_published=post.is_published
+        is_published=post.is_published,
+        read_time=post.read_time,
+        author_name=post.author_name,
+        author_avatar=post.author_avatar,
+        related_posts=','.join(post.related_posts) if post.related_posts else None
     )
     db.add(db_post)
     db.commit()
     db.refresh(db_post)
-    return db_post
+    # Convert related_posts and tags to list for response
+    result = db_post.__dict__.copy()
+    result['related_posts'] = db_post.related_posts.split(',') if db_post.related_posts else []
+    result['tags'] = [tag.name for tag in db_post.tags]  # or tag.slug
+    # Fix featured_image to be absolute URL
+    if result.get('featured_image') and result['featured_image'].startswith('/uploads/'):
+        result['featured_image'] = str(request.base_url).rstrip('/') + result['featured_image']
+    return result
 
 @router.put("/{slug}", response_model=BlogPostSchema)
 def update_blog_post(
     slug: str,
     post: BlogPostUpdate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    request: Request = None
 ):
     db_post = db.query(BlogPost).filter(BlogPost.slug == slug).first()
     if db_post is None:
@@ -77,7 +106,9 @@ def update_blog_post(
     # Update post fields
     update_data = post.dict(exclude_unset=True)
     for field, value in update_data.items():
-        if field != 'tag_ids':
+        if field == 'related_posts' and value is not None:
+            setattr(db_post, field, ','.join(value))
+        elif field != 'tag_ids':
             setattr(db_post, field, value)
     
     # Update title and slug if title is changed
@@ -99,7 +130,14 @@ def update_blog_post(
     
     db.commit()
     db.refresh(db_post)
-    return db_post
+    # Convert related_posts and tags to list for response
+    result = db_post.__dict__.copy()
+    result['related_posts'] = db_post.related_posts.split(',') if db_post.related_posts else []
+    result['tags'] = [tag.name for tag in db_post.tags]  # or tag.slug
+    # Fix featured_image to be absolute URL
+    if result.get('featured_image') and result['featured_image'].startswith('/uploads/'):
+        result['featured_image'] = str(request.base_url).rstrip('/') + result['featured_image']
+    return result
 
 @router.delete("/{slug}")
 def delete_blog_post(slug: str, db: Session = Depends(get_db)):

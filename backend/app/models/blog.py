@@ -44,6 +44,10 @@ class BlogPost(Base):
     excerpt = Column(String(500))
     featured_image = Column(String(255))
     is_published = Column(Boolean, default=False)
+    read_time = Column(String(50))
+    author_name = Column(String(100))
+    author_avatar = Column(String(255))
+    related_posts = Column(String(500))  # comma-separated slugs
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     

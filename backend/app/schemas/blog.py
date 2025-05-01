@@ -59,6 +59,10 @@ class BlogPostBase(BaseModel):
     excerpt: Optional[str] = None
     featured_image: Optional[str] = None
     is_published: bool = False
+    read_time: Optional[str] = None
+    author_name: Optional[str] = None
+    author_avatar: Optional[str] = None
+    related_posts: Optional[List[str]] = []
 
 class BlogPostCreate(BlogPostBase):
     pass
