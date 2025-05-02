@@ -12,3 +12,4 @@ email-validator==2.1.0
 pydantic-settings
 python-slugify
 bcrypt
+psycopg2-binary

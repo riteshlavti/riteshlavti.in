@@ -77,6 +77,10 @@ yarn-debug.log*
 yarn-error.log*
 #add all pychaches modules from backend
 backend/**/__pycache__/
+backend/routes/
+backend/routes
+backend/__pycache__/
+
 backend/**/*.py[cod]
 backend/**/*$py.class
 backend/dist/
