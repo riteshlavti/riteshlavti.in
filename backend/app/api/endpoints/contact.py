@@ -22,6 +22,8 @@ class ContactMessage(BaseModel):
     name: str
     email: EmailStr
     message: str
+    linkedin: str = None
+    mobile: str = None
 
 @router.get("/", response_model=ContactInfoSchema)
 def get_contact_info(db: Session = Depends(get_db)):
@@ -78,7 +80,12 @@ def upsert_contact_info(
 def send_message(data: ContactMessage, request: Request):
     # Compose email
     subject = f"Portfolio Contact Form: Message from {data.name}"
-    body = f"Name: {data.name}\nEmail: {data.email}\n\nMessage:\n{data.message}"
+    body = f"Name: {data.name}\nEmail: {data.email}\n"
+    if data.linkedin:
+        body += f"LinkedIn ID: {data.linkedin}\n"
+    if data.mobile:
+        body += f"Mobile: {data.mobile}\n"
+    body += f"\nMessage:\n{data.message}"
     msg = MIMEText(body)
     msg["Subject"] = subject
     msg["From"] = settings.SMTP_FROM_EMAIL
