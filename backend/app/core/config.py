@@ -35,6 +35,15 @@ class Settings(BaseSettings):
     DEFAULT_PHONE: str = os.getenv("DEFAULT_PHONE", "+1234567890")
     DEFAULT_LOCATION: str = os.getenv("DEFAULT_LOCATION", "Your Location")
     
+    # SMTP Email Settings
+    SMTP_HOST: str = os.getenv("SMTP_HOST", "smtp.example.com")
+    SMTP_PORT: int = int(os.getenv("SMTP_PORT", "587"))
+    SMTP_USER: str = os.getenv("SMTP_USER", "")
+    SMTP_PASSWORD: str = os.getenv("SMTP_PASSWORD", "")
+    SMTP_FROM_EMAIL: str = os.getenv("SMTP_FROM_EMAIL", "your.email@example.com")
+    SMTP_TO_EMAIL: str = os.getenv("SMTP_TO_EMAIL", "your.email@example.com")
+    SMTP_TLS: bool = os.getenv("SMTP_TLS", "true").lower() == "true"
+    
     # Upload Directories
     UPLOAD_DIR: str = "uploads"
     PROFILE_IMAGES_DIR: str = os.path.join(UPLOAD_DIR, "profile")

@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from app.api.endpoints import blog as blog_api, projects, skills, contact, upload, auth as auth_api
+from app.api.endpoints import blog as blog_api, projects, skills, contact, upload, auth as auth_api, testimonials
 from app.core.config import settings
 from app.db.database import Base, engine
 from app.models import blog as blog_models  # For model registration only
@@ -17,11 +17,12 @@ app = FastAPI(
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.BACKEND_CORS_ORIGINS,
+    allow_origins=["*"],  # Allow all origins for development
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+print("[CORS] Allowed origins: * (development mode)")
 
 # Mount static files
 app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
@@ -33,6 +34,7 @@ app.include_router(skills.router, prefix=f"{settings.API_V1_STR}/skills", tags=[
 app.include_router(contact.router, prefix=f"{settings.API_V1_STR}/contact", tags=["contact"])
 app.include_router(upload.router, prefix=f"{settings.API_V1_STR}/upload", tags=["upload"])
 app.include_router(auth_api.router, prefix=f"{settings.API_V1_STR}/auth", tags=["auth"])
+app.include_router(testimonials.router, prefix=f"{settings.API_V1_STR}/testimonials", tags=["testimonials"])
 
 @app.get("/")
 def root():

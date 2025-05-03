@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { testimonials } from '../data/testimonialsData';
+import React, { useState, useCallback } from 'react';
+import { useTestimonials } from '../data/testimonialsData';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 import { FaQuoteLeft } from 'react-icons/fa';
@@ -23,7 +23,7 @@ const StarRating: React.FC<{ rating: number }> = ({ rating }) => (
 
 const useResponsiveTestimonials = () => {
   const [isMobile, setIsMobile] = useState(false);
-  useEffect(() => {
+  React.useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768);
     check();
     window.addEventListener('resize', check);
@@ -34,15 +34,17 @@ const useResponsiveTestimonials = () => {
 
 const TestimonialsSlider: React.FC = () => {
   const isMobile = useResponsiveTestimonials();
+  const testimonials = useTestimonials();
   const testimonialsPerSlide = 1;
+  const [current, setCurrent] = useState(0);
+
   const total = testimonials.length;
   const maxIndex = Math.max(0, total - testimonialsPerSlide);
-  const [current, setCurrent] = useState(0);
 
   const next = useCallback(() => setCurrent((prev) => (prev + testimonialsPerSlide > maxIndex ? 0 : prev + testimonialsPerSlide)), [maxIndex, testimonialsPerSlide]);
   const prev = useCallback(() => setCurrent((prev) => (prev - testimonialsPerSlide < 0 ? maxIndex : prev - testimonialsPerSlide)), [maxIndex, testimonialsPerSlide]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     const timer = setInterval(next, AUTO_PLAY_INTERVAL);
     return () => clearInterval(timer);
   }, [next]);
@@ -60,7 +62,7 @@ const TestimonialsSlider: React.FC = () => {
           <button
             aria-label="Previous testimonial"
             onClick={prev}
-            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white dark:bg-darkSurface border border-gray-200 dark:border-darkBorder rounded-full p-2 shadow hover:bg-gray-100 dark:hover:bg-darkBorder transition-colors"
+            className="absolute left-0 -ml-16 sm:-ml-6 top-1/2 -translate-y-1/2 z-20 bg-white dark:bg-darkSurface border border-gray-200 dark:border-darkBorder rounded-full p-2 shadow hover:bg-gray-100 dark:hover:bg-darkBorder transition-colors"
           >
             <FiChevronLeft size={24} />
           </button>
@@ -74,7 +76,7 @@ const TestimonialsSlider: React.FC = () => {
                 transition={{ duration: 0.5 }}
                 className="flex w-full justify-center"
               >
-                {visibleTestimonials.map((testimonial) => {
+                {visibleTestimonials.map((testimonial, idx) => {
                   // Get initials from name
                   const nameParts = testimonial.name.split(' ');
                   const initials = nameParts.length > 1
@@ -98,11 +100,9 @@ const TestimonialsSlider: React.FC = () => {
                     hash = testimonial.name.charCodeAt(i) + ((hash << 5) - hash);
                   }
                   const colorClass = avatarColors[Math.abs(hash) % avatarColors.length];
-                  return (
-                    <div
-                      key={testimonial.name}
-                      className="bg-white dark:bg-darkSurface rounded-xl shadow-2xl px-10 py-8 flex flex-col items-center text-center w-full max-w-2xl border border-gray-100 dark:border-darkBorder relative"
-                    >
+                  // Card content
+                  const cardContent = (
+                    <>
                       <FaQuoteLeft className="absolute left-4 top-4 text-4xl text-gray-300 dark:text-darkBorder opacity-40 pointer-events-none select-none" />
                       <div className={`w-24 h-24 rounded-full flex items-center justify-center mb-4 shadow text-white text-4xl font-bold select-none ${colorClass}`}>
                         {initials}
@@ -113,6 +113,26 @@ const TestimonialsSlider: React.FC = () => {
                         <span className="block font-semibold text-gray-900 dark:text-darkTextPrimary text-2xl">{testimonial.name}</span>
                         <span className="block text-primary-600 dark:text-darkPrimaryAccent text-lg mt-1">{testimonial.role}</span>
                       </div>
+                    </>
+                  );
+                  // If verify_url, make card clickable
+                  return testimonial.verify_url ? (
+                    <a
+                      key={testimonial.name + idx}
+                      href={testimonial.verify_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="bg-white dark:bg-darkSurface rounded-xl shadow-2xl px-10 py-8 flex flex-col items-center text-center w-full max-w-2xl border border-gray-100 dark:border-darkBorder relative transition-transform duration-200 hover:scale-105 cursor-pointer"
+                      style={{ textDecoration: 'none' }}
+                    >
+                      {cardContent}
+                    </a>
+                  ) : (
+                    <div
+                      key={testimonial.name + idx}
+                      className="bg-white dark:bg-darkSurface rounded-xl shadow-2xl px-10 py-8 flex flex-col items-center text-center w-full max-w-2xl border border-gray-100 dark:border-darkBorder relative"
+                    >
+                      {cardContent}
                     </div>
                   );
                 })}
@@ -122,10 +142,11 @@ const TestimonialsSlider: React.FC = () => {
           <button
             aria-label="Next testimonial"
             onClick={next}
-            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white dark:bg-darkSurface border border-gray-200 dark:border-darkBorder rounded-full p-2 shadow hover:bg-gray-100 dark:hover:bg-darkBorder transition-colors"
+            className="absolute right-0 -mr-16 sm:-mr-6 top-1/2 -translate-y-1/2 z-20 bg-white dark:bg-darkSurface border border-gray-200 dark:border-darkBorder rounded-full p-2 shadow hover:bg-gray-100 dark:hover:bg-darkBorder transition-colors"
           >
             <FiChevronRight size={24} />
           </button>
+        </div>
           <div className="flex justify-center mt-8 space-x-3">
             {Array.from({ length: numDots }).map((_, idx) => (
               <button
@@ -135,7 +156,6 @@ const TestimonialsSlider: React.FC = () => {
                 aria-label={`Go to testimonial set ${idx + 1}`}
               />
             ))}
-          </div>
         </div>
       </div>
     </section>

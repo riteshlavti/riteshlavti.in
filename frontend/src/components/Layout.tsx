@@ -1,7 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import ThemeToggle from './ThemeToggle';
 import { motion } from 'framer-motion';
+import { Canvas } from '@react-three/fiber';
+import { OrbitControls, Environment, Points, PointMaterial, Sparkles } from '@react-three/drei';
+import * as THREE from 'three';
+import { useRef, useMemo } from 'react';
+import { Group } from 'three';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -230,7 +235,23 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
       {/* Footer */}
       <footer className="bg-white dark:bg-gray-800 shadow-lg mt-auto">
-        <div className="max-w-7xl mx-auto py-4 px-8 sm:px-12 lg:px-16">
+        <div className="max-w-7xl mx-auto flex flex-col items-center py-4 px-8 sm:px-12 lg:px-16">
+          <div className="w-full flex justify-center mb-2">
+            <div style={{
+              width: 240,
+              height: 240,
+              borderRadius: '50%',
+              overflow: 'hidden',
+              background: 'inherit'
+            }}>
+              <Canvas camera={{ position: [0, 0, 3] }}>
+                <ambientLight intensity={0.7} />
+                <directionalLight position={[2, 2, 2]} intensity={0.7} />
+                <RotatingSphereWithSparkles />
+                <OrbitControls enableZoom={false} enablePan={false} autoRotate autoRotateSpeed={1.5} />
+              </Canvas>
+            </div>
+          </div>
           <p className="text-center text-gray-500 dark:text-gray-400">
             © {new Date().getFullYear()} Ritesh Lavti. All rights reserved.
           </p>
@@ -239,5 +260,42 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     </div>
   );
 };
+
+// 3D Rotating Sphere with Sparkling Dots
+function RotatingSphereWithSparkles() {
+  const group = useRef<Group>(null);
+  // Generate random points on a sphere
+  const points = useMemo(() => {
+    const pts = [];
+    for (let i = 0; i < 200; i++) {
+      const phi = Math.acos(2 * Math.random() - 1);
+      const theta = 2 * Math.PI * Math.random();
+      const r = 1.2 + Math.random() * 0.2;
+      pts.push([
+        2.2 * r * Math.sin(phi) * Math.cos(theta),
+        r * Math.sin(phi) * Math.sin(theta),
+        r * Math.cos(phi),
+      ]);
+    }
+    return new Float32Array(pts.flat());
+  }, []);
+  return (
+    <group ref={group}>
+      {/* Hollow wireframe sphere with grid lines */}
+      <mesh>
+        <sphereGeometry args={[1.05, 32, 32]} />
+        <meshBasicMaterial color="#e0e7ef" wireframe opacity={0.5} transparent />
+      </mesh>
+      <Sparkles
+        count={350}
+        scale={[4.5, 2.2, 2.2]}
+        size={1.2}
+        color="#fff8e1"
+        speed={1.2}
+        opacity={1}
+      />
+    </group>
+  );
+}
 
 export default Layout; 

@@ -19,10 +19,20 @@ def create_admin():
         return
 
     db = SessionLocal()
-    hashed_pw = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
+    existing = db.query(User).filter(User.email == email).first()
+    hashed_pw = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+    if existing:
+        existing.password = hashed_pw
+        if name:
+            existing.name = name
+        db.commit()
+        db.close()
+        print(f"Admin user {email} already exists. Password (and name) updated.")
+        return
+
     admin = User(
         email=email,
-        password=hashed_pw.decode("utf-8"),
+        password=hashed_pw,
         name=name,
         role="admin"
     )

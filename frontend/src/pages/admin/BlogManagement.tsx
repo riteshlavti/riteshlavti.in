@@ -37,6 +37,8 @@ const BlogManagement: React.FC = () => {
   const [relatedPosts, setRelatedPosts] = useState<string[]>([]);
   const [relatedInput, setRelatedInput] = useState('');
   const [excerpt, setExcerpt] = useState('');
+  const [allTags, setAllTags] = useState<string[]>([]);
+  const [allSlugs, setAllSlugs] = useState<string[]>([]);
 
   const initialPostState: BlogPost = {
     id: '',
@@ -53,10 +55,12 @@ const BlogManagement: React.FC = () => {
 
   const fetchPosts = useCallback(async () => {
     try {
-      const response = await fetch(apiUrl('/blog/'));
+      const response = await fetch(apiUrl('/blog/'), {
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('authToken')}` },
+      });
       if (response.ok) {
         const data = await response.json();
-        setPosts(data);
+        setPosts(Array.isArray(data) ? data : []);
       }
     } catch (error) {
       showToast('Failed to fetch blog posts', 'error');
@@ -68,6 +72,21 @@ const BlogManagement: React.FC = () => {
   useEffect(() => {
     fetchPosts();
   }, [fetchPosts]);
+
+  useEffect(() => {
+    // Fetch all tags
+    fetch(apiUrl('/tags/'), {
+      headers: { 'Authorization': `Bearer ${localStorage.getItem('authToken')}` },
+    })
+      .then(res => res.json())
+      .then(data => setAllTags(Array.isArray(data) ? data.map((tag: any) => tag.name) : []));
+    // Fetch all blog slugs
+    fetch(apiUrl('/blog/'), {
+      headers: { 'Authorization': `Bearer ${localStorage.getItem('authToken')}` },
+    })
+      .then(res => res.json())
+      .then(data => setAllSlugs(Array.isArray(data) ? data.map((post: any) => post.slug) : []));
+  }, []);
 
   const validateFile = (file: File): boolean => {
     if (!file.type.startsWith('image/')) {
@@ -112,6 +131,7 @@ const BlogManagement: React.FC = () => {
     const response = await fetch(apiUrl('/upload/image'), {
       method: 'POST',
       body: formData,
+      headers: { 'Authorization': `Bearer ${localStorage.getItem('authToken')}` },
     });
 
     if (!response.ok) {
@@ -128,46 +148,31 @@ const BlogManagement: React.FC = () => {
     setIsUploading(true);
 
     try {
-      let imageUrl = currentPost.featured_image;
-
+      const formData = new FormData();
+      formData.append('title', currentPost.title || '');
+      formData.append('content', currentPost.content || '');
+      formData.append('excerpt', excerpt || '');
+      formData.append('is_published', String(currentPost.is_published || false));
+      formData.append('read_time', readTime || '');
+      formData.append('author_name', currentPost.author_name || 'Ritesh Lavti');
+      formData.append('author_avatar', currentPost.author_avatar || '/images/profile.jfif');
+      formData.append('related_posts', relatedPosts.join(','));
+      formData.append('tags', tags.join(','));
       if (selectedImages.length > 0) {
-        // Upload the first selected image
-        imageUrl = await uploadImage(selectedImages[0]);
+        formData.append('image', selectedImages[0]);
       }
-
-      const user = { name: 'Ritesh Lavti', avatar: '/images/profile.jfif' }; // Replace with getCurrentUser() if available
-      const now = new Date();
-      const date = now.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-      const slug = (currentPost.title || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-      const postData = {
-        title: currentPost.title,
-        date,
-        readTime,
-        content: currentPost.content,
-        tags,
-        author: user,
-        relatedPosts,
-        excerpt,
-        slug,
-        image: imageUrl,
-      };
 
       const url = isEditing ? apiUrl(`/blog/${currentPost.slug}`) : apiUrl('/blog/');
       const method = isEditing ? 'PUT' : 'POST';
 
       const response = await fetch(url, {
         method,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(postData),
+        body: formData,
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('authToken')}` },
       });
 
       if (response.ok) {
-        showToast(
-          `Blog post ${isEditing ? 'updated' : 'created'} successfully`,
-          'success'
-        );
+        showToast(`Blog post ${isEditing ? 'updated' : 'created'} successfully`, 'success');
         fetchPosts();
         resetForm();
       } else {
@@ -185,7 +190,10 @@ const BlogManagement: React.FC = () => {
     if (!window.confirm('Are you sure you want to delete this post?')) return;
 
     try {
-      const response = await fetch(apiUrl(`/blog/${slug}`), { method: 'DELETE' });
+      const response = await fetch(apiUrl(`/blog/${slug}`), {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('authToken')}` },
+      });
 
       if (response.ok) {
         showToast('Blog post deleted successfully', 'success');
@@ -200,7 +208,9 @@ const BlogManagement: React.FC = () => {
 
   const handleEdit = async (post: BlogPost) => {
     try {
-      const response = await fetch(apiUrl(`/blog/${post.slug}`));
+      const response = await fetch(apiUrl(`/blog/${post.slug}`), {
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('authToken')}` },
+      });
       if (response.ok) {
         const data = await response.json();
         console.log('Fetched blog post data:', data); // Debug log
@@ -233,12 +243,25 @@ const BlogManagement: React.FC = () => {
     setCurrentPost(initialPostState);
     setSelectedImages([]);
     setIsEditing(false);
+    setTags([]);
+    setRelatedPosts([]);
+    setReadTime('');
+    setExcerpt('');
+    setTagInput('');
+    setRelatedInput('');
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
   };
 
   console.log('CurrentPost before render:', currentPost);
+
+  const filteredTagSuggestions = allTags.filter(
+    tag => tag.toLowerCase().includes(tagInput.toLowerCase()) && !tags.includes(tag)
+  );
+  const filteredRelatedSuggestions = allSlugs.filter(
+    slug => slug.toLowerCase().includes(relatedInput.toLowerCase()) && !relatedPosts.includes(slug)
+  );
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -389,6 +412,22 @@ const BlogManagement: React.FC = () => {
                 </span>
               ))}
             </div>
+            {filteredTagSuggestions.length > 0 && tagInput && (
+              <ul className="bg-white border rounded shadow mt-1 absolute z-10 w-full">
+                {filteredTagSuggestions.map(suggestion => (
+                  <li
+                    key={suggestion}
+                    className="px-3 py-2 cursor-pointer hover:bg-blue-100"
+                    onClick={() => {
+                      setTags([...tags, suggestion]);
+                      setTagInput('');
+                    }}
+                  >
+                    {suggestion}
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
           <div className="mb-4">
             <label className="block text-sm font-medium mb-1 dark:text-gray-200">Related Posts (slugs)</label>
@@ -416,6 +455,22 @@ const BlogManagement: React.FC = () => {
                 </span>
               ))}
             </div>
+            {filteredRelatedSuggestions.length > 0 && relatedInput && (
+              <ul className="bg-white border rounded shadow mt-1 absolute z-10 w-full">
+                {filteredRelatedSuggestions.map(suggestion => (
+                  <li
+                    key={suggestion}
+                    className="px-3 py-2 cursor-pointer hover:bg-blue-100"
+                    onClick={() => {
+                      setRelatedPosts([...relatedPosts, suggestion]);
+                      setRelatedInput('');
+                    }}
+                  >
+                    {suggestion}
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
           <div className="mb-4">
             <label className="block text-sm font-medium mb-1 dark:text-gray-200">Excerpt (short summary)</label>

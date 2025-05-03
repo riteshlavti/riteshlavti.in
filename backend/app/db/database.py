@@ -6,7 +6,7 @@ from app.core.config import settings
 engine = create_engine(
     settings.DATABASE_URL,
     echo=True,
-    #connect_args={"check_same_thread": False} no connect args for postgres
+    connect_args={"check_same_thread": False} # no connect args for postgres
 )
 
 # Create session factory

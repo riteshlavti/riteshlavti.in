@@ -28,6 +28,7 @@ function formatDate(dateStr: string): string {
 const BlogPost: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const contentRef = useRef<HTMLDivElement>(null);
+  const articleRef = useRef<HTMLDivElement>(null);
   const [blogPost, setBlogPost] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
   const [comments, setComments] = useState<Comment[]>([]);
@@ -36,6 +37,7 @@ const BlogPost: React.FC = () => {
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const [replyContent, setReplyContent] = useState('');
   const [copySuccess, setCopySuccess] = useState(false);
+  const [progress, setProgress] = useState(0);
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -63,6 +65,32 @@ const BlogPost: React.FC = () => {
     };
     fetchPost();
   }, [id]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!articleRef.current) return;
+      const el = articleRef.current;
+      const rect = el.getBoundingClientRect();
+      const windowHeight = window.innerHeight;
+      const sectionTop = rect.top + window.scrollY;
+      const sectionHeight = rect.height;
+      const scrollY = window.scrollY;
+      let percent = 0;
+      if (sectionHeight > 0) {
+        const scrolled = Math.min(Math.max(scrollY + windowHeight - sectionTop, 0), sectionHeight);
+        percent = (scrolled / sectionHeight) * 100;
+      }
+      percent = Math.max(0, Math.min(100, percent));
+      setProgress(percent);
+    };
+    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('resize', handleScroll);
+    handleScroll();
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleScroll);
+    };
+  }, []);
 
   const handleCopyLink = () => {
     const url = window.location.href;
@@ -265,13 +293,42 @@ const BlogPost: React.FC = () => {
   );
 
   return (
-    <div className="container mx-auto px-8 sm:px-12 lg:px-16 py-8">
-      <div className="max-w-3xl mx-auto" ref={contentRef}>
-        {/* Back Button */}
-        <div className="mb-8">
+    <div className="container mx-auto px-8 sm:px-12 lg:px-16 py-8 relative">
+      {/* Progress Indicator above BackToTop button */}
+      <div style={{position: 'fixed', right: 24, bottom: 76, zIndex: 1000}}>
+        <div className="relative flex items-center justify-center">
+          {/* Progress ring background, rotated to start at top */}
+          <svg className="absolute" width="40" height="40" style={{transform: 'rotate(-90deg)'}}>
+            <circle cx="20" cy="20" r="18" stroke="#e5e7eb" strokeWidth="4" fill="none" />
+            <circle
+              cx="20"
+              cy="20"
+              r="18"
+              stroke="url(#progress-gradient)"
+              strokeWidth="4"
+              fill="none"
+              strokeDasharray={2 * Math.PI * 18}
+              strokeDashoffset={2 * Math.PI * 18 * (1 - progress / 100)}
+              strokeLinecap="round"
+              style={{transition: 'stroke-dashoffset 0.3s'}}
+            />
+            <defs>
+              <linearGradient id="progress-gradient" x1="0" y1="0" x2="40" y2="40">
+                <stop offset="0%" stopColor="#3b82f6" />
+                <stop offset="100%" stopColor="#06b6d4" />
+              </linearGradient>
+            </defs>
+          </svg>
+          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary-600 to-cyan-400 shadow-lg border-2 border-white flex items-center justify-center text-white text-[10px] font-bold select-none z-10 p-0" style={{lineHeight: '1', padding: '0'}}>
+            {Math.round(progress)}%
+          </div>
+        </div>
+      </div>
+      {/* Back Button aligned with content and styled */}
+      <div className="max-w-3xl mx-auto mb-8">
           <Link 
             to="/blog"
-            className="inline-flex items-center text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300"
+          className="inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg shadow hover:bg-primary-700 transition-colors font-semibold text-base"
           >
             <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -279,7 +336,10 @@ const BlogPost: React.FC = () => {
             Back to Blog
           </Link>
         </div>
-
+      {/* Main Article Section with Progress Bar */}
+      <div className="max-w-3xl mx-auto flex flex-row relative" style={{alignItems: 'flex-start'}}>
+        {/* Article Section Only (header, image, content, tags) */}
+        <div className="flex-1" ref={articleRef}>
         {/* Article Header */}
         <header className="mb-8">
           <div className="flex items-center justify-between mb-4">
@@ -322,12 +382,23 @@ const BlogPost: React.FC = () => {
             </span>
           </div>
         </header>
-
+          {/* Content & Tags with Image at the start */}
+          <div className="relative flex flex-col items-center gap-8">
+            {/* Featured Image at the top, centered */}
+            {blogPost.featured_image && (
+              <div className="w-full flex justify-center">
+                <img
+                  src={blogPost.featured_image}
+                  alt={blogPost.title}
+                  className="w-64 max-w-full object-cover rounded-xl shadow mb-6"
+                />
+              </div>
+            )}
+            <div className="flex-1 w-full" ref={articleRef}>
         {/* Article Content */}
-        <article className="prose dark:prose-invert prose-lg">
+              <article className="prose dark:prose-invert prose-lg mx-auto">
           <div dangerouslySetInnerHTML={{ __html: blogPost.content }} />
         </article>
-
         {/* Tags */}
         <div className="mt-8">
           <div className="flex items-center space-x-2">
@@ -341,9 +412,12 @@ const BlogPost: React.FC = () => {
             )) : null}
           </div>
         </div>
-
+            </div>
+          </div>
+        </div>
+      </div>
         {/* Share Section */}
-        <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700">
+      <div className="max-w-3xl mx-auto mt-8 pt-8 border-t border-gray-200 dark:border-gray-700">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
             Share this article
           </h3>
@@ -382,10 +456,9 @@ const BlogPost: React.FC = () => {
             </a>
           </div>
         </div>
-
         {/* Related Posts */}
         {Array.isArray(blogPost.relatedPosts) && blogPost.relatedPosts.length > 0 ? (
-          <div className="mt-16 bg-gray-50 dark:bg-gray-700 rounded-xl p-8">
+        <div className="max-w-3xl mx-auto mt-16 bg-gray-50 dark:bg-gray-700 rounded-xl p-8">
             <h3 className="text-2xl font-semibold text-gray-900 dark:text-white mb-6">
               Related Posts
             </h3>
@@ -410,7 +483,6 @@ const BlogPost: React.FC = () => {
             </div>
           </div>
         ) : null}
-      </div>
     </div>
   );
 };

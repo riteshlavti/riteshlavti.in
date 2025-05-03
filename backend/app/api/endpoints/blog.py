@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Query, Request
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, UploadFile, File, Form
 from sqlalchemy.orm import Session
 from sqlalchemy import select, func
 from typing import List
@@ -7,6 +7,10 @@ from app.models.blog import BlogPost, Category, Tag
 from app.schemas.blog import BlogPost as BlogPostSchema
 from app.schemas.blog import BlogPostCreate, BlogPostUpdate
 from slugify import slugify
+from app.core.file_utils import save_upload_file
+from app.core.config import settings
+from app.api.endpoints.auth import get_current_user
+from app.models.user import User
 
 router = APIRouter()
 
@@ -32,11 +36,19 @@ def get_blog_posts(
     results = []
     for post in posts:
         item = post.__dict__.copy()
+        # Ensure related_posts is always a list of strings
         item['related_posts'] = post.related_posts.split(',') if post.related_posts else []
-        item['tags'] = [tag.name for tag in post.tags]  # or tag.slug
+        # Ensure tags is always a list of tag names
+        item['tags'] = [tag.name for tag in post.tags]
         # Fix featured_image to be absolute URL
         if item.get('featured_image') and item['featured_image'].startswith('/uploads/'):
             item['featured_image'] = str(request.base_url).rstrip('/') + item['featured_image']
+        # Ensure all expected fields are present
+        for field in [
+            'id', 'slug', 'title', 'content', 'excerpt', 'featured_image', 'is_published',
+            'read_time', 'author_name', 'author_avatar', 'created_at', 'updated_at', 'related_posts', 'tags']:
+            if field not in item:
+                item[field] = None
         results.append(item)
     return results
 
@@ -46,101 +58,173 @@ def get_blog_post(slug: str, db: Session = Depends(get_db), request: Request = N
     if post is None:
         raise HTTPException(status_code=404, detail="Blog post not found")
     result = post.__dict__.copy()
+    # Ensure related_posts is always a list of strings
     result['related_posts'] = post.related_posts.split(',') if post.related_posts else []
-    result['tags'] = [tag.name for tag in post.tags]  # or tag.slug
+    # Ensure tags is always a list of tag names
+    result['tags'] = [tag.name for tag in post.tags]
     # Fix featured_image to be absolute URL
     if result.get('featured_image') and result['featured_image'].startswith('/uploads/'):
         result['featured_image'] = str(request.base_url).rstrip('/') + result['featured_image']
+    # Ensure all expected fields are present
+    for field in [
+        'id', 'slug', 'title', 'content', 'excerpt', 'featured_image', 'is_published',
+        'read_time', 'author_name', 'author_avatar', 'created_at', 'updated_at', 'related_posts', 'tags']:
+        if field not in result:
+            result[field] = None
     return result
 
 @router.post("/", response_model=BlogPostSchema)
-def create_blog_post(post: BlogPostCreate, db: Session = Depends(get_db), request: Request = None):
-    base_slug = slugify(post.title)
+async def create_blog_post(
+    title: str = Form(...),
+    content: str = Form(...),
+    excerpt: str = Form(None),
+    is_published: bool = Form(False),
+    read_time: str = Form(None),
+    author_name: str = Form(None),
+    author_avatar: str = Form(None),
+    related_posts: str = Form(None),  # comma-separated slugs
+    tags: str = Form(None),  # comma-separated tag names
+    image: UploadFile = File(None),
+    db: Session = Depends(get_db),
+    request: Request = None,
+    current_user: User = Depends(get_current_user)  # Require authentication
+):
+    # Validation for required fields
+    if not title or not title.strip():
+        raise HTTPException(status_code=400, detail="Title is required.")
+    if not content or not content.strip():
+        raise HTTPException(status_code=400, detail="Content is required.")
+    # Save image if provided
+    featured_image = None
+    if image:
+        image_path = await save_upload_file(image, settings.BLOG_IMAGES_DIR, "blog")
+        # Always use forward slashes and only the filename for the URL
+        filename = image_path.replace("\\", "/").split("/")[-1]
+        featured_image = f"/uploads/blog/{filename}"
+    # Handle related_posts as list
+    related_posts_list = related_posts.split(',') if related_posts else []
+    base_slug = slugify(title)
     slug = base_slug
     i = 1
-    # Ensure slug uniqueness
     while db.query(BlogPost).filter(BlogPost.slug == slug).first():
         slug = f"{base_slug}-{i}"
         i += 1
     db_post = BlogPost(
-        title=post.title,
+        title=title,
         slug=slug,
-        content=post.content,
-        excerpt=post.excerpt,
-        featured_image=post.featured_image,
-        is_published=post.is_published,
-        read_time=post.read_time,
-        author_name=post.author_name,
-        author_avatar=post.author_avatar,
-        related_posts=','.join(post.related_posts) if post.related_posts else None
+        content=content,
+        excerpt=excerpt,
+        featured_image=featured_image,
+        is_published=is_published,
+        read_time=read_time,
+        author_name=author_name,
+        author_avatar=author_avatar,
+        related_posts=','.join(related_posts_list) if related_posts_list else None
     )
+    # Handle tags
+    tag_objs = []
+    if tags:
+        tag_names = [t.strip() for t in tags.split(',') if t.strip()]
+        for tag_name in tag_names:
+            tag = db.query(Tag).filter(Tag.name == tag_name).first()
+            if not tag:
+                tag = Tag(name=tag_name, slug=slugify(tag_name))
+                db.add(tag)
+                db.commit()
+                db.refresh(tag)
+            tag_objs.append(tag)
+    db_post.tags = tag_objs
     db.add(db_post)
     db.commit()
     db.refresh(db_post)
-    # Convert related_posts and tags to list for response
     result = db_post.__dict__.copy()
     result['related_posts'] = db_post.related_posts.split(',') if db_post.related_posts else []
-    result['tags'] = [tag.name for tag in db_post.tags]  # or tag.slug
+    result['tags'] = [tag.name for tag in db_post.tags]
     # Fix featured_image to be absolute URL
     if result.get('featured_image') and result['featured_image'].startswith('/uploads/'):
         result['featured_image'] = str(request.base_url).rstrip('/') + result['featured_image']
     return result
 
 @router.put("/{slug}", response_model=BlogPostSchema)
-def update_blog_post(
+async def update_blog_post(
     slug: str,
-    post: BlogPostUpdate,
+    title: str = Form(None),
+    content: str = Form(None),
+    excerpt: str = Form(None),
+    is_published: bool = Form(None),
+    read_time: str = Form(None),
+    author_name: str = Form(None),
+    author_avatar: str = Form(None),
+    related_posts: str = Form(None),  # comma-separated slugs
+    tags: str = Form(None),  # comma-separated tag names
+    image: UploadFile = File(None),
     db: Session = Depends(get_db),
-    request: Request = None
+    request: Request = None,
+    current_user: User = Depends(get_current_user)  # Require authentication
 ):
     db_post = db.query(BlogPost).filter(BlogPost.slug == slug).first()
     if db_post is None:
         raise HTTPException(status_code=404, detail="Blog post not found")
-    
-    # Check if category exists
-    if hasattr(post, 'category_id') and post.category_id:
-        category = db.query(Category).filter(Category.id == post.category_id).first()
-        if not category:
-            raise HTTPException(status_code=404, detail="Category not found")
-    
-    # Update post fields
-    update_data = post.dict(exclude_unset=True)
-    for field, value in update_data.items():
-        if field == 'related_posts' and value is not None:
-            setattr(db_post, field, ','.join(value))
-        elif field != 'tag_ids':
-            setattr(db_post, field, value)
-    
-    # Update title and slug if title is changed
-    if 'title' in update_data:
-        base_slug = slugify(db_post.title)
+    # Validation for required fields if updating them
+    if title is not None and not title.strip():
+        raise HTTPException(status_code=400, detail="Title cannot be empty.")
+    if content is not None and not content.strip():
+        raise HTTPException(status_code=400, detail="Content cannot be empty.")
+    # Update fields if provided
+    if title is not None:
+        db_post.title = title
+        # Optionally update slug if title changes
+        base_slug = slugify(title)
         new_slug = base_slug
         i = 1
         while db.query(BlogPost).filter(BlogPost.slug == new_slug, BlogPost.id != db_post.id).first():
             new_slug = f"{base_slug}-{i}"
             i += 1
         db_post.slug = new_slug
-    
-    # Update tags if provided
-    if 'tag_ids' in update_data:
-        tags = db.query(Tag).filter(Tag.id.in_(post.tag_ids)).all()
-        if len(tags) != len(post.tag_ids):
-            raise HTTPException(status_code=404, detail="One or more tags not found")
-        db_post.tags = tags
-    
+    if content is not None:
+        db_post.content = content
+    if excerpt is not None:
+        db_post.excerpt = excerpt
+    if is_published is not None:
+        db_post.is_published = is_published
+    if read_time is not None:
+        db_post.read_time = read_time
+    if author_name is not None:
+        db_post.author_name = author_name
+    if author_avatar is not None:
+        db_post.author_avatar = author_avatar
+    if related_posts is not None:
+        db_post.related_posts = related_posts
+    # Handle tags
+    tag_objs = []
+    if tags:
+        tag_names = [t.strip() for t in tags.split(',') if t.strip()]
+        for tag_name in tag_names:
+            tag = db.query(Tag).filter(Tag.name == tag_name).first()
+            if not tag:
+                tag = Tag(name=tag_name, slug=slugify(tag_name))
+                db.add(tag)
+                db.commit()
+                db.refresh(tag)
+            tag_objs.append(tag)
+    if tags is not None:
+        db_post.tags = tag_objs
+    # Handle image upload
+    if image:
+        image_path = await save_upload_file(image, settings.BLOG_IMAGES_DIR, "blog")
+        filename = image_path.replace("\\", "/").split("/")[-1]
+        db_post.featured_image = f"/uploads/blog/{filename}"
     db.commit()
     db.refresh(db_post)
-    # Convert related_posts and tags to list for response
     result = db_post.__dict__.copy()
     result['related_posts'] = db_post.related_posts.split(',') if db_post.related_posts else []
-    result['tags'] = [tag.name for tag in db_post.tags]  # or tag.slug
-    # Fix featured_image to be absolute URL
+    result['tags'] = [tag.name for tag in db_post.tags]
     if result.get('featured_image') and result['featured_image'].startswith('/uploads/'):
         result['featured_image'] = str(request.base_url).rstrip('/') + result['featured_image']
     return result
 
 @router.delete("/{slug}")
-def delete_blog_post(slug: str, db: Session = Depends(get_db)):
+def delete_blog_post(slug: str, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     post = db.query(BlogPost).filter(BlogPost.slug == slug).first()
     if post is None:
         raise HTTPException(status_code=404, detail="Blog post not found")

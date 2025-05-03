@@ -82,6 +82,9 @@ const SkillManagement: React.FC = () => {
     formData.append('file', file);
     const response = await fetch(apiUrl('/upload/image'), {
       method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+      },
       body: formData,
     });
     if (!response.ok) {
@@ -106,6 +109,7 @@ const SkillManagement: React.FC = () => {
         method,
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
         },
         body: JSON.stringify({ ...currentSkill, icon_url: iconUrl }),
       });
@@ -133,6 +137,9 @@ const SkillManagement: React.FC = () => {
     try {
       const response = await fetch(apiUrl(`/skills/${id}`), {
         method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+        },
       });
 
       if (response.ok) {

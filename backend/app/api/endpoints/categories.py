@@ -16,14 +16,29 @@ def get_categories(
     db: Session = Depends(get_db)
 ):
     categories = db.query(Category).offset(skip).limit(limit).all()
-    return categories
+    results = []
+    for cat in categories:
+        item = cat.__dict__.copy()
+        for field in ['id', 'name', 'slug', 'description', 'created_at']:
+            if field not in item:
+                item[field] = None
+        if item.get('image_url') and item['image_url'].startswith('/uploads/'):
+            item['image_url'] = str(request.base_url).rstrip('/') + item['image_url']
+        results.append(item)
+    return results
 
 @router.get("/{slug}", response_model=CategorySchema)
 def get_category(slug: str, db: Session = Depends(get_db)):
     category = db.query(Category).filter(Category.slug == slug).first()
     if category is None:
         raise HTTPException(status_code=404, detail="Category not found")
-    return category
+    item = category.__dict__.copy()
+    for field in ['id', 'name', 'slug', 'description', 'created_at']:
+        if field not in item:
+            item[field] = None
+    if item.get('image_url') and item['image_url'].startswith('/uploads/'):
+        item['image_url'] = str(request.base_url).rstrip('/') + item['image_url']
+    return item
 
 @router.post("/", response_model=CategorySchema)
 def create_category(category: CategoryCreate, db: Session = Depends(get_db)):

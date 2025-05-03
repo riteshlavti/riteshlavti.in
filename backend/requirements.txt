@@ -13,3 +13,4 @@ pydantic-settings
 python-slugify
 bcrypt
 psycopg2-binary
+slowapi

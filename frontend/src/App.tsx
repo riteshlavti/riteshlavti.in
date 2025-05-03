@@ -16,6 +16,9 @@ import Dashboard from './pages/admin/Dashboard';
 import BlogManagement from './pages/admin/BlogManagement';
 import ProjectManagement from './pages/admin/ProjectManagement';
 import SkillManagement from './pages/admin/SkillManagement';
+import ProfileManagement from './pages/admin/ProfileManagement';
+import TestimonialManagement from './pages/admin/TestimonialManagement';
+import BackToTop from './components/BackToTop';
 
 function App() {
   return (
@@ -65,7 +68,24 @@ function App() {
                       </ProtectedRoute>
                     }
                   />
+                  <Route
+                    path="/admin/profile-management"
+                    element={
+                      <ProtectedRoute requireAdmin>
+                        <ProfileManagement />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/admin/testimonial-management"
+                    element={
+                      <ProtectedRoute requireAdmin>
+                        <TestimonialManagement />
+                      </ProtectedRoute>
+                    }
+                  />
                 </Routes>
+                <BackToTop />
               </Layout>
             </ToastProvider>
           </AuthProvider>
