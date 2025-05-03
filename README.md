@@ -1,29 +1,22 @@
-# Portfolio Site – Documentation
+# Portfolio Site
 
-## Overview
-
-**portfolio-site** is a full-stack personal portfolio web application. It allows you to showcase your projects, blog posts, skills, and contact information, with a modern, responsive UI and a robust backend for content management.
+A modern, full-stack personal portfolio web application with a robust admin dashboard, dynamic content, and secure authentication.
 
 ---
 
 ## Table of Contents
 
 1. [Project Structure](#project-structure)
-2. [Technologies Used](#technologies-used)
-3. [Frontend](#frontend)
-    - [Features](#frontend-features)
-    - [Key Components](#frontend-key-components)
-    - [Theming & Styling](#theming--styling)
-    - [Running the Frontend](#running-the-frontend)
-4. [Backend](#backend)
-    - [Features](#backend-features)
-    - [Database Models](#database-models)
-    - [API Endpoints](#api-endpoints)
-    - [Running the Backend](#running-the-backend)
-5. [Deployment](#deployment)
-6. [Customization](#customization)
-7. [Contributing](#contributing)
-8. [License](#license)
+2. [Features](#features)
+3. [Technologies Used](#technologies-used)
+4. [Frontend](#frontend)
+5. [Backend](#backend)
+6. [API Overview](#api-overview)
+7. [Setup & Running Locally](#setup--running-locally)
+8. [Deployment](#deployment)
+9. [Customization](#customization)
+10. [Contributing](#contributing)
+11. [License](#license)
 
 ---
 
@@ -34,85 +27,74 @@ portfolio-site/
 │
 ├── backend/
 │   ├── app/
-│   │   ├── api/           # FastAPI endpoints
-│   │   ├── core/          # Configurations
-│   │   ├── db/            # Database setup
-│   │   ├── models/        # SQLAlchemy models
-│   │   ├── schemas/       # Pydantic schemas
-│   │   ├── routes/        # (Optional) Additional routes
-│   │   ├── scripts/       # Utility scripts
-│   │   ├── uploads/       # Uploaded images/files
-│   │   ├── requirements.txt   # Python dependencies
-│   │   ├── setup.py           # Backend setup
-│   │   └── portfolio.db       # SQLite database
-│   │
-│   ├── frontend/
-│   │   ├── public/            # Static assets (images, favicon, etc.)
-│   │   ├── src/
-│   │   │   ├── components/    # React components
-│   │   │   ├── context/       # React context providers
-│   │   │   ├── data/          # Static data (e.g., blogData.ts)
-│   │   │   ├── pages/         # Page components (Blog, Admin, etc.)
-│   │   │   └── package.json       # Frontend dependencies
-│   │   │   └── tailwind.config.js # Tailwind CSS config
-│   │   │   └── tsconfig.json      # TypeScript config
-│   │   └── README.md              # Project documentation
-│   └── README.md              # Project documentation
+│   │   ├── api/endpoints/   # FastAPI endpoints (blog, projects, skills, testimonials, contact, auth, etc.)
+│   │   ├── core/            # Config, file utils, settings
+│   │   ├── db/              # Database setup
+│   │   ├── models/          # SQLAlchemy models
+│   │   ├── schemas/         # Pydantic schemas
+│   │   ├── uploads/         # Uploaded images/files
+│   │   └── ...
+│   ├── requirements.txt
+│   └── portfolio.db         # SQLite database (dev)
+│
+├── frontend/
+│   ├── public/              # Static assets (images, favicon, etc.)
+│   ├── src/
+│   │   ├── components/      # React components
+│   │   ├── context/         # React context providers (e.g., Auth, Toast)
+│   │   ├── data/            # Static fallback data (blog, testimonials, etc.)
+│   │   ├── pages/           # Page components (Home, Blog, Admin, etc.)
+│   │   └── ...
+│   ├── package.json
+│   └── tailwind.config.js
+│
+└── README.md
 ```
+
+---
+
+## Features
+
+### Public
+
+- **Homepage**: Introduction, profile, and highlights.
+- **Projects**: Dynamic portfolio projects with images, tech stack, and links.
+- **Blog**: Dynamic blog posts with rich content, tags, related posts, and share buttons.
+- **Skills**: Visual display of skills with icons and proficiency.
+- **Testimonials**: Dynamic testimonials from database (with optional static fallback).
+- **Contact**: Contact form, social links, and "Book a Free Session" (Topmate integration).
+- **Dark Mode**: Fully supported.
+- **Responsive Design**: Mobile-first, modern UI.
+
+### Admin
+
+- **Dashboard**: Central hub for managing all content.
+- **Blog Management**: Create, edit, delete blog posts (with image upload, tags, related posts).
+- **Project Management**: CRUD for projects (with image upload, tech stack).
+- **Skill Management**: CRUD for skills (with icon upload).
+- **Testimonial Management**: Add, delete testimonials.
+- **Profile Management**: Upload/update hero and contact profile images.
+- **Authentication**: Secure login, JWT-based session, protected admin routes.
 
 ---
 
 ## Technologies Used
 
-### Frontend
-
-- **React** (TypeScript)
-- **Tailwind CSS** (with custom dark mode palette)
-- **React Router** (routing)
-- **React Context** (global state, e.g., Toasts)
-- **React-Quill** (rich text editor for admin)
-- **Other**: Icons (react-icons), custom hooks, etc.
-
-### Backend
-
-- **FastAPI** (Python)
-- **SQLAlchemy** (ORM)
-- **SQLite** (default DB, can be swapped)
-- **Pydantic** (data validation)
-- **CORS** (for frontend-backend communication)
-- **Static file serving** (for uploads)
+- **Frontend**: React (TypeScript), Tailwind CSS, React Router, React Context, React-Quill, react-icons
+- **Backend**: FastAPI, SQLAlchemy, Pydantic, python-jose (JWT), bcrypt, SQLite (dev), CORS, static file serving
+- **Other**: Toast notifications, custom hooks, modern UI/UX patterns
 
 ---
 
 ## Frontend
 
-### Frontend Features
+### Key Structure
 
-- **Homepage**: Introduction, navigation, and highlights.
-- **Projects**: Showcase of portfolio projects, with images, tech stack, and links.
-- **Blog**: List and detail pages for blog posts, with comments and sharing.
-- **Skills**: Visual display of skills with icons and colors.
-- **Testimonials**: Carousel/slider for client or peer testimonials.
-- **Contact**: Contact form and social links.
-- **Admin Panel**: Manage blog posts and projects (create, edit, delete).
-- **Dark Mode**: Customizable, professional palette.
-- **Responsive Design**: Fully mobile-friendly.
-
-### Key Components
-
-- `components/`: Buttons, Inputs, Forms, Toasts, Modals, etc.
-- `pages/`: Each main route (Home, Blog, BlogPost, Projects, Admin, etc.)
-- `data/`: Static blog data (used as fallback or for static posts).
-- `context/ToastContext.tsx`: Global toast notifications.
-- `pages/admin/BlogManagement.tsx`: Blog CRUD for admins.
-- `pages/admin/ProjectManagement.tsx`: Project CRUD for admins.
-
-### Theming & Styling
-
-- **Tailwind CSS**: Utility-first styling.
-- **Custom Colors**: Professional blue/slate palette, with dark mode support.
-- **Consistent Section Titles**: Centered, subtle, and matching the theme.
-- **Minimalist, Modern UI**: Clean layouts, subtle shadows, and spacing.
+- `src/components/`: UI elements (Buttons, Inputs, Toasts, etc.)
+- `src/pages/`: Main pages (Home, Blog, BlogPost, Projects, Admin, etc.)
+- `src/pages/admin/`: Admin management pages (Blog, Projects, Skills, Testimonials, Profile)
+- `src/context/`: Global state (Auth, Toast)
+- `src/data/`: Static fallback data (used only if backend is unavailable)
 
 ### Running the Frontend
 
@@ -127,36 +109,13 @@ npm start
 
 ## Backend
 
-### Backend Features
+### Key Structure
 
-- **RESTful API**: For blog, projects, skills, contact, uploads, and authentication.
-- **Image Uploads**: Handles file uploads for blog/project images.
-- **Database Models**: For users, blog posts, projects, skills, contact info, etc.
-- **CORS**: Allows frontend to communicate with backend.
-- **Static File Serving**: For uploaded images.
-
-### Database Models
-
-Located in `backend/app/models/`:
-
-- **User**: `id`, `email`, `password`, `name`, `role`
-- **BlogPost**: `id`, `title`, `slug`, `content`, `excerpt`, `featured_image`, `is_published`, `read_time`, `author_name`, `author_avatar`, `related_posts`, `created_at`, `updated_at`, `category_id`
-- **Category**: `id`, `name`, `slug`, `description`, `created_at`
-- **Tag**: `id`, `name`, `slug`, `created_at`
-- **Comment**: `id`, `content`, `author_name`, `author_email`, `created_at`, `post_id`, `parent_id`
-- **Project**: `id`, `title`, `description`, `image_url`, `technologies` (JSON), `github_url`, `live_url`, `is_featured`, `created_at`
-- **Skill**: `id`, `name`, `icon`, `color`
-- **ContactInfo**: `id`, `email`, `phone`, `location`, `social_links` (JSON), `profile_image`
-
-### API Endpoints
-
-- `/api/v1/blog/` – Blog CRUD
-- `/api/v1/projects/` – Project CRUD
-- `/api/v1/skills/` – Skills
-- `/api/v1/contact/` – Contact info
-- `/api/v1/upload/` – Image/file uploads
-- `/api/v1/auth/` – Authentication (login, register)
-- `/uploads/` – Static file serving for images
+- `app/api/endpoints/`: All API routes (blog, projects, skills, testimonials, contact, auth, upload, categories, tags)
+- `app/models/`: SQLAlchemy models for all entities
+- `app/schemas/`: Pydantic schemas for validation
+- `app/uploads/`: Uploaded images/files
+- `portfolio.db`: SQLite database (for development)
 
 ### Running the Backend
 
@@ -165,19 +124,66 @@ cd backend
 python -m venv venv
 source venv/bin/activate  # or venv\Scripts\activate on Windows
 pip install -r requirements.txt
-python scripts/create_admin_sqlalchemy.py # to save admin credentials in DB [one time process]
 uvicorn app.main:app --reload
 ```
 - Runs on [http://localhost:8000](http://localhost:8000) by default.
 
 ---
 
+## API Overview
+
+### Authentication
+
+- `POST /api/v1/auth/login` – Login, returns JWT token
+- `GET /api/v1/auth/validate` – Validate token (for session persistence)
+
+### Public Endpoints
+
+- `GET /api/v1/blog/` – List blog posts
+- `GET /api/v1/blog/{slug}` – Get blog post by slug
+- `GET /api/v1/projects/` – List projects
+- `GET /api/v1/projects/{id}` – Get project by ID
+- `GET /api/v1/skills/` – List skills
+- `GET /api/v1/testimonials/` – List testimonials
+- `GET /api/v1/contact/` – Get contact/profile info
+- `GET /api/v1/categories/` – List categories
+- `GET /api/v1/tags/` – List tags
+
+### Protected/Admin Endpoints (require JWT)
+
+- `POST/PUT/DELETE /api/v1/blog/` – Create, update, delete blog posts
+- `POST/PUT/DELETE /api/v1/projects/` – Create, update, delete projects
+- `POST/PUT/DELETE /api/v1/skills/` – Create, update, delete skills
+- `POST/PUT/DELETE /api/v1/testimonials/` – Create, update, delete testimonials
+- `POST/PUT /api/v1/contact/` – Create or update contact/profile info
+- `POST /api/v1/upload/` – Upload images (profile, project, blog, generic)
+
+### Other
+
+- `POST /api/v1/contact/send-message` – Send contact form message (rate-limited)
+- `/uploads/` – Static file serving for images
+
+---
+
+## Database Models
+
+- **User**: id, email, password (bcrypt), name, role
+- **BlogPost**: id, title, slug, content, excerpt, featured_image, is_published, read_time, author_name, author_avatar, related_posts, created_at, updated_at, category_id, tags (many-to-many)
+- **Project**: id, title, description, image_url, technologies (JSON), github_url, live_url, is_featured, created_at
+- **Skill**: id, name, icon, color
+- **Testimonial**: id, name, role, text, rating, verify_url, created_at
+- **ContactInfo**: id, profile_image, contact_profile_image
+- **Category**: id, name, slug, description, created_at
+- **Tag**: id, name, slug, created_at
+
+---
+
 ## Deployment
 
-- **Frontend**: Can be deployed to Vercel, Netlify, or any static hosting.
-- **Backend**: Can be deployed to Heroku, Render, DigitalOcean, or any server supporting Python.
-- **Database**: Uses [Supabase](https://supabase.com/) (hosted Postgres) for production database storage.
-- **Environment Variables**: Set up for production (e.g., DB URL, CORS origins).
+- **Frontend**: Deploy to Vercel, Netlify, or any static hosting.
+- **Backend**: Deploy to any Python server (Heroku, Render, DigitalOcean, etc.).
+- **Database**: Use SQLite for dev, Postgres (e.g., Supabase) for production.
+- **Environment Variables**: Set API URLs, DB URLs, CORS origins, JWT secret, SMTP for contact form, etc.
 - **Static Files**: Ensure `/uploads` is writable and served.
 
 ---
@@ -185,8 +191,8 @@ uvicorn app.main:app --reload
 ## Customization
 
 - **Theme**: Edit `tailwind.config.js` for colors, fonts, etc.
-- **Content**: Use the admin panel or edit static data in `frontend/src/data/`.
-- **Images**: Place in `frontend/public/images/` or upload via admin.
+- **Content**: Use the admin dashboard for all content management.
+- **Images**: Upload via admin or place in `frontend/public/images/`.
 - **Sections**: Add/remove sections by editing React components in `src/pages/` and `src/components/`.
 
 ---
@@ -202,7 +208,7 @@ uvicorn app.main:app --reload
 
 ## License
 
-This project is licensed under the MIT License.
+MIT
 
 ---
 

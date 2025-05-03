@@ -1,6 +1,9 @@
 // Featured projects data and types for use across the app
 
+import { apiUrl } from '../api';
+
 export interface FeaturedProject {
+  id: number;
   title: string;
   description: string;
   technologies: string[];
@@ -8,34 +11,26 @@ export interface FeaturedProject {
   url?: string;
   githubUrl?: string;
   liveUrl?: string;
+  created_at?: string;
 }
 
-export const featuredProjects: FeaturedProject[] = [
-  {
-    title: 'Automated Candy Crush Game',
-    description: 'A automated candy crush game using python and appium',
-    technologies: ['Python', 'Appium', 'Pytest'],
-    image: '/images/appium.png',
-    url: 'https://github.com/yourusername/candy-crush-automation',
-    githubUrl: 'https://github.com/yourusername/candy-crush-automation',
-    liveUrl: '',
-  },
-  {
-    title: 'Automated Rdklu website flows',
-    description: 'Automated rdklu website flows using java and selenium',
-    technologies: ['Java', 'Selenium', 'TestNG'],
-    image: '/images/selenium.png',
-    url: 'https://github.com/yourusername/rdklu-automation',
-    githubUrl: 'https://github.com/yourusername/rdklu-automation',
-    liveUrl: '',
-  },
-  {
-    title: 'Blogging Website',
-    description: 'A full-stack blogging website with JS, EJS and CSS',
-    technologies: ['JS', 'EJS', 'CSS'],
-    image: '/images/blogging_project.png',
-    url: 'https://github.com/yourusername/blogging-website',
-    githubUrl: 'https://github.com/yourusername/blogging-website',
-    liveUrl: '',
-  },
-]; 
+export async function fetchFeaturedProjects(): Promise<FeaturedProject[]> {
+  const res = await fetch(apiUrl('/projects?limit=3&skip=0'));
+  if (!res.ok) throw new Error('Failed to fetch projects');
+  let data = await res.json();
+  if (!Array.isArray(data)) data = [];
+  data = data.sort((a: FeaturedProject, b: FeaturedProject) =>
+    new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime()
+  );
+  return data.slice(0, 3).map((p: any) => ({
+    id: p.id,
+    title: p.title,
+    description: p.description,
+    technologies: Array.isArray(p.technologies) ? p.technologies : [],
+    image: p.image_url,
+    url: p.live_url,
+    githubUrl: p.github_url,
+    liveUrl: p.live_url,
+    created_at: p.created_at,
+  }));
+} 

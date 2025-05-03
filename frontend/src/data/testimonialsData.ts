@@ -1,9 +1,13 @@
+import { useEffect, useState } from 'react';
+import { apiUrl } from '../api';
+
 export interface Testimonial {
   avatar: string;
   name: string;
   role: string;
   text: string;
   rating: number;
+  verify_url?: string;
 }
 
 export const testimonials: Testimonial[] = [
@@ -49,4 +53,27 @@ export const testimonials: Testimonial[] = [
     text: 'Ritesh brings energy and innovation to every project. He is a go-to person for solving complex automation challenges.',
     rating: 5
   }
-]; 
+];
+
+export function useTestimonials(): Testimonial[] {
+  const [allTestimonials, setAllTestimonials] = useState<Testimonial[]>(testimonials);
+
+  useEffect(() => {
+    fetch(apiUrl('/testimonials/'))
+      .then(res => res.ok ? res.json() : [])
+      .then((dbTestimonials: any[]) => {
+        const mapped = dbTestimonials.map(t => ({
+          avatar: '',
+          name: t.name,
+          role: t.role || '',
+          text: t.text,
+          rating: t.rating ?? 5,
+          verify_url: t.verify_url,
+        }));
+        setAllTestimonials([...testimonials, ...mapped]);
+      })
+      .catch(() => setAllTestimonials(testimonials));
+  }, []);
+
+  return allTestimonials;
+} 

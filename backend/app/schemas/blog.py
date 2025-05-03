@@ -63,6 +63,7 @@ class BlogPostBase(BaseModel):
     author_name: Optional[str] = None
     author_avatar: Optional[str] = None
     related_posts: Optional[List[str]] = []
+    tags: List[str] = []
 
 class BlogPostCreate(BlogPostBase):
     pass

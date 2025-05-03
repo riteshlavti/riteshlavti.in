@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { blogPosts as staticBlogPosts } from '../data/blogData';
 import { apiUrl } from '../api';
 
 function formatDate(dateStr: string): string {
@@ -14,36 +13,40 @@ function formatDate(dateStr: string): string {
 }
 
 const Blog: React.FC = () => {
-  // Use state for blog data
-  const [blogData, setBlogData] = useState<{ [slug: string]: any }>({ ...staticBlogPosts });
+  const [allPosts, setAllPosts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchDbPosts = async () => {
+      setLoading(true);
+      setError(null);
       try {
         const response = await fetch(apiUrl('/blog/'));
         if (response.ok) {
-          const dbPosts = await response.json();
-          // Merge db posts into blogData by slug
-          const merged = { ...staticBlogPosts };
-          dbPosts.forEach((post: any) => {
-            merged[post.slug] = {
-              ...merged[post.slug], // keep static fields if needed
-              ...post,              // overwrite/add with db fields
-            };
-          });
-          setBlogData(merged);
+          let dbPosts = await response.json();
+          if (!Array.isArray(dbPosts)) dbPosts = [];
+          dbPosts = dbPosts.sort((a: any, b: any) =>
+            new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime()
+          );
+          setAllPosts(dbPosts.map((post: any) => ({
+            ...post,
+            date: formatDate(post.created_at),
+            read_time: post.read_time || '',
+            image: post.featured_image || post.image || '',
+          })));
+        } else {
+          setAllPosts([]);
         }
-      } catch (error) {
-        // Optionally handle error
+      } catch (err: any) {
+        setError(err.message || 'Error fetching blogs');
+        setAllPosts([]);
       } finally {
         setLoading(false);
       }
     };
     fetchDbPosts();
   }, []);
-
-  const allPosts = Object.values(blogData);
 
   return (
     <div className="container mx-auto px-8 sm:px-12 lg:px-16 py-8">
@@ -61,17 +64,21 @@ const Blog: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {loading ? (
           <div>Loading...</div>
+        ) : error ? (
+          <div className="text-red-500">{error}</div>
+        ) : allPosts.length === 0 ? (
+          <div>No blogs found.</div>
         ) : (
           allPosts.map((post) => (
             <article key={post.slug} className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden transition-transform duration-200 hover:transform hover:scale-105">
               <img 
-                src={post.featured_image || post.image}
+                src={post.image}
                 alt={post.title}
                 className="w-full h-48 object-cover rounded-t-xl border-t-4 border-white"
               />
               <div className="p-6">
                 <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-2">
-                  <span>{formatDate(post.date || (post.created_at ? post.created_at.slice(0, 10) : ''))}</span>
+                  <span>{post.date}</span>
                   {post.read_time && (
                     <>
                       <span className="mx-2">•</span>
@@ -83,7 +90,7 @@ const Blog: React.FC = () => {
                   to={`/blog/${post.slug}`}
                   className="block"
                 >
-                  <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2 hover:text-primary-600 dark:hover:text-primary-400 transition-colors">
+                  <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2 hover:text-primary-600 dark:hover:text-primary-400 transition-colors line-clamp-2">
                     {post.title}
                   </h2>
                 </Link>
@@ -115,6 +122,7 @@ const Blog: React.FC = () => {
       </div>
 
       {/* Newsletter Section */}
+      {/*
       <div className="mt-16 bg-gray-50 dark:bg-gray-700 rounded-xl p-8">
         <div className="max-w-2xl mx-auto text-center">
           <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
@@ -138,6 +146,7 @@ const Blog: React.FC = () => {
           </form>
         </div>
       </div>
+      */}
     </div>
   );
 };

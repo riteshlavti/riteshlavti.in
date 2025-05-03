@@ -1,6 +1,55 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { FiChevronDown } from 'react-icons/fi';
+import { FiDownload } from 'react-icons/fi';
 
 const About: React.FC = () => {
+  const [openTimeline, setOpenTimeline] = useState<number | null>(null);
+
+  const timelineData = [
+    {
+      id: 0,
+      logo: '/images/zeta.avif',
+      alt: 'Zeta Company Logo',
+      title: 'SDET',
+      company: 'Zeta',
+      date: 'Jan 2025 - Present',
+      description: 'Working on backend automation using python and requests. Contributing to make the framework more modular, reusable and scalable.',
+      achievements: [
+        'Built modular API automation framework in Python',
+        'Integrated CI/CD pipelines with Jenkins',
+        'Technologies: Python, Requests, Jenkins, Git',
+      ],
+    },
+    {
+      id: 1,
+      logo: '/images/itt.png',
+      alt: 'In Time Tec Logo',
+      title: 'Jr. Software Engineer',
+      company: 'In Time Tec',
+      date: 'Jan 2024 - Dec 2024',
+      description: 'Worked on frontend automation using selenium and playwright and backend automation using java and rest assured.',
+      achievements: [
+        'Automated UI tests with Selenium and Playwright',
+        'Developed backend test suites in Java',
+        'Technologies: Selenium, Playwright, Java, RestAssured',
+      ],
+    },
+    {
+      id: 2,
+      logo: '/images/skit-logo.png',
+      alt: 'University Logo',
+      title: 'B.Tech. in Computer Science',
+      company: 'SKIT, Jaipur',
+      date: '2020 - 2024',
+      description: 'Focused on software engineering. Participated in various hackathons and coding competitions.',
+      achievements: [
+        'Participated in 3+ hackathons and coding competitions',
+        'Developed projects in Java, Python, and React',
+        'Technologies: Java, Python, React',
+      ],
+    },
+  ];
+
   return (
     <div className="container mx-auto px-8 sm:px-12 lg:px-16 py-4">
       {/* Hero Section */}
@@ -32,11 +81,10 @@ const About: React.FC = () => {
         </div>
         <div>
           <p className="text-gray-600 dark:text-gray-300 mb-4">
-          SDET with a passion for automation and quality engineering. Skilled in Python, Java, Selenium, Playwright, Appium, and API testing tools like RestAssured and Postman. I build scalable test frameworks for UI, API, and mobile platforms.
-          Exploring AI in automation. Love helping others with career growth, investing, and mental models. Always curious and eager to learn.
+          I'm a passionate SDET focused on delivering high-quality software through robust automation. With strong skills in Python, Java, and tools like Selenium, Playwright, Appium, and Requests, I build scalable test frameworks for web, mobile, and API platforms. My goal is to make testing efficient, reliable, and maintainable across all stages of development.
           </p>
           <p className="text-gray-600 dark:text-gray-300">
-          I'm a passionate SDET with a strong focus on automation and quality assurance. I've honed my skills in Python, Java, and automation tools like Selenium, Playwright, and Appium. My expertise lies in building scalable test frameworks that ensure robust and efficient software delivery.
+          Beyond coding, I enjoy exploring the use of AI in automation and love sharing knowledge about career growth, investing, and mental models. I'm always eager to learn, help others grow, and stay curious in a rapidly evolving tech landscape.
           </p>
         </div>
       </div>
@@ -140,7 +188,7 @@ const About: React.FC = () => {
       </div>
 
       {/* Timeline Section */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 mb-8">
         <div className="flex items-center mb-6">
           <div className="w-10 h-10 rounded-full bg-primary-100 dark:bg-primary-900 flex items-center justify-center mr-3">
             <svg className="w-5 h-5 text-primary-600 dark:text-primary-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -153,63 +201,91 @@ const About: React.FC = () => {
         </div>
         <div className="relative">
           {/* Timeline line */}
-          <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-gray-200 dark:bg-gray-700"></div>
+          <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-gray-200 dark:bg-gray-700 transition-all duration-500"></div>
           
           {/* Timeline items */}
           <div className="space-y-8">
-            {/* Work Experience */}
-            <div className="relative pl-12">
-              <div className="absolute left-0 w-12 h-12 rounded-full bg-white dark:bg-gray-800 flex items-center justify-center border-2 border-primary-100 dark:border-primary-900">
+            {timelineData.map((item, idx) => (
+              <div key={item.id} className="relative pl-16">
+                {/* Animated timeline line segment for expanded entry */}
+                {openTimeline === item.id && (
+                  <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-primary-400 dark:bg-primary-500 z-10 transition-all duration-500" style={{ boxShadow: '0 0 8px 2px rgba(59,130,246,0.25)' }}></div>
+                )}
+                <div className={`absolute left-0 w-11 h-11 flex items-center justify-center border-2 rounded-full transition-all duration-300 z-20
+                  ${openTimeline === item.id
+                    ? 'scale-105 border-primary-500 shadow-[0_0_12px_2px_rgba(59,130,246,0.25)] bg-white dark:bg-gray-800'
+                    : 'border-primary-100 dark:border-primary-900 bg-white dark:bg-gray-800'}
+                `}>
                 <img 
-                  src="/images/zeta.avif" 
-                  alt="Zeta Company Logo" 
-                  className="w-8 h-8 object-contain"
+                    src={item.logo} 
+                    alt={item.alt} 
+                    className="w-9 h-9 object-cover rounded-full"
+                  />
+                </div>
+                <div
+                  className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 cursor-pointer transition-shadow hover:shadow-lg"
+                  onClick={() => setOpenTimeline(openTimeline === item.id ? null : item.id)}
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-lg font-medium text-gray-900 dark:text-white">{item.title}</h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-300">{item.company} • {item.date}</p>
+                    </div>
+                    <div className="w-7 h-7 flex items-center justify-center rounded-full bg-gray-200 dark:bg-gray-700 transition-colors">
+                      <FiChevronDown
+                        className={`w-5 h-5 text-primary-600 dark:text-primary-300 transition-transform duration-300 ${openTimeline === item.id ? 'rotate-180' : 'rotate-0'}`}
                 />
               </div>
-              <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-                <h3 className="text-lg font-medium text-gray-900 dark:text-white">SDET</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-300">Zeta • Jan 2025 - Present</p>
-                <p className="mt-2 text-gray-600 dark:text-gray-300">
-                  Working on backend automation using python and requests. Contributing to make the framework more modular, reusable and scalable.
-                </p>
+                  </div>
+                  <div
+                    className={`overflow-hidden transition-all duration-500 ease-in-out ${openTimeline === item.id ? 'max-h-96 opacity-100 mt-2' : 'max-h-0 opacity-0 mt-0'}`}
+                  >
+                    <p className="text-gray-600 dark:text-gray-300">{item.description}</p>
+                    <ul className="list-disc pl-5 text-gray-600 dark:text-gray-300 mt-2 text-sm">
+                      {item.achievements.map((ach, i) => (
+                        <li key={i}>{ach}</li>
+                      ))}
+                    </ul>
+              </div>
+            </div>
+              </div>
+            ))}
+          </div>
               </div>
             </div>
 
-            <div className="relative pl-12">
-              <div className="absolute left-0 w-12 h-12 rounded-full bg-white dark:bg-gray-800 flex items-center justify-center border-2 border-primary-100 dark:border-primary-900">
-                <img 
-                  src="/images/itt.png" 
-                  alt="In Time Tec Logo" 
-                  className="w-8 h-8 object-contain"
-                />
+      {/* Interests Section */}
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 mb-0">
+        <div className="flex items-center mb-6">
+          <div className="w-10 h-10 rounded-full bg-primary-100 dark:bg-primary-900 flex items-center justify-center mr-3">
+            <svg className="w-5 h-5 text-primary-600 dark:text-primary-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2a4 4 0 018 0v2M9 17H7a2 2 0 01-2-2v-2a2 2 0 012-2h2m0 0V7a4 4 0 018 0v4m-8 0h8" />
+            </svg>
+          </div>
+          <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">
+            Interests
+          </h2>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          <div className="flex items-center bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+            <span className="text-2xl mr-4">🤖</span>
+            <span className="text-gray-800 dark:text-gray-100">Exploring AI and automation in daily life</span>
+          </div>
+          <div className="flex items-center bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+            <span className="text-2xl mr-4">📈</span>
+            <span className="text-gray-800 dark:text-gray-100">Investing and learning about personal finance</span>
               </div>
-              <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-                <h3 className="text-lg font-medium text-gray-900 dark:text-white">Jr. Software Engineer</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-300">In Time Tec • Jan 2024 - Dec 2024</p>
-                <p className="mt-2 text-gray-600 dark:text-gray-300">
-                  Worked on frontend automation using selenium and playwright and backend automation using java and rest assured.
-                </p>
+          <div className="flex items-center bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+            <span className="text-2xl mr-4">📚</span>
+            <span className="text-gray-800 dark:text-gray-100">Reading books on psychology, self-help, and buisness</span>
               </div>
+          <div className="flex items-center bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+            <span className="text-2xl mr-4">👨‍🏫</span>
+            <span className="text-gray-800 dark:text-gray-100">Mentoring and helping others grow in tech and life</span>
             </div>
-
-            {/* Education */}
-            <div className="relative pl-12">
-              <div className="absolute left-0 w-12 h-12 rounded-full bg-white dark:bg-gray-800 flex items-center justify-center border-2 border-primary-100 dark:border-primary-900">
-                <img 
-                  src="/images/skit-logo.png" 
-                  alt="University Logo" 
-                  className="w-8 h-8 object-contain"
-                />
-              </div>
-              <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-                <h3 className="text-lg font-medium text-gray-900 dark:text-white">B.Tech. in Computer Science</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-300">SKIT, Jaipur • 2020 - 2024</p>
-                <p className="mt-2 text-gray-600 dark:text-gray-300">
-                  Focused on software engineering. Participated in various hackathons and 
-                  coding competitions.
-                </p>
-              </div>
-            </div>
+          <div className="flex items-center bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+            <span className="text-2xl mr-4">🏃‍♂️</span>
+            <span className="text-gray-800 dark:text-gray-100">Staying active and travelling</span>
           </div>
         </div>
       </div>
@@ -224,7 +300,7 @@ const About: React.FC = () => {
             Ready to collaborate on exciting projects? Let's turn ideas into reality together!
           </p>
         </div>
-        <div className="flex justify-center space-x-6">
+        <div className="flex justify-center items-center space-x-6 mb-6">
           <a
             href="https://linkedin.com/in/riteshlavti"
             target="_blank"
@@ -255,6 +331,15 @@ const About: React.FC = () => {
             <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
               <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
             </svg>
+          </a>
+          <a
+            href="https://drive.google.com/file/d/1tFPYVnXBHbEeXMpU0E7_J2ICjrtGVLM8/view?usp=drivesdk"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-primary-700 dark:text-primary-300 hover:text-primary-900 dark:hover:text-primary-100 transition-colors"
+            aria-label="Download Resume"
+          >
+            <FiDownload className="w-8 h-8" />
           </a>
         </div>
       </div>

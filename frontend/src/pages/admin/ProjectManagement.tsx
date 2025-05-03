@@ -34,7 +34,11 @@ const ProjectManagement: React.FC = () => {
 
   const fetchProjects = useCallback(async () => {
     try {
-      const response = await fetch(apiUrl('/projects'));
+      const response = await fetch(apiUrl('/projects'), {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+        },
+      });
       if (response.ok) {
         const data = await response.json();
         setProjects(data);
@@ -90,6 +94,9 @@ const ProjectManagement: React.FC = () => {
     const response = await fetch(apiUrl('/upload/image'), {
       method: 'POST',
       body: formData,
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+      },
     });
     if (!response.ok) {
       throw new Error('Failed to upload image');
@@ -117,7 +124,7 @@ const ProjectManagement: React.FC = () => {
       const response = await fetch(url, {
         method,
         headers: {
-          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
         },
         body: JSON.stringify(projectData),
       });
@@ -143,7 +150,12 @@ const ProjectManagement: React.FC = () => {
     if (!window.confirm('Are you sure you want to delete this project?')) return;
 
     try {
-      const response = await fetch(apiUrl(`/projects/${id}`), { method: 'DELETE' });
+      const response = await fetch(apiUrl(`/projects/${id}`), {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+        },
+      });
 
       if (response.ok) {
         showToast('Project deleted successfully', 'success');
@@ -157,6 +169,7 @@ const ProjectManagement: React.FC = () => {
   };
 
   const handleEdit = (project: Project) => {
+    resetForm();
     setCurrentProject(project);
     setTechnologies(project.technologies.join(', '));
     setSelectedImages([]);
