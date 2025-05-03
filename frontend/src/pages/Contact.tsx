@@ -5,7 +5,7 @@ import { useToast } from '../context/ToastContext';
 import { apiUrl } from '../api';
 
 const Contact: React.FC = () => {
-  const [form, setForm] = useState({ name: '', email: '', message: '' });
+  const [form, setForm] = useState({ name: '', email: '', message: '', linkedin: '', mobile: '' });
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -53,7 +53,7 @@ const Contact: React.FC = () => {
       const data = await res.json();
       if (res.ok && data.success) {
         setSuccess(true);
-        setForm({ name: '', email: '', message: '' });
+        setForm({ name: '', email: '', message: '', linkedin: '', mobile: '' });
         showToast('Message sent successfully!', 'success');
       } else {
         showToast(data.detail || 'Failed to send message.', 'error');
@@ -83,7 +83,9 @@ const Contact: React.FC = () => {
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Name</label>
+                  <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Name <span className="text-red-500">*</span>
+                  </label>
                   <input
                     type="text"
                     id="name"
@@ -96,7 +98,9 @@ const Contact: React.FC = () => {
                   {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
                 </div>
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
+                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Email <span className="text-red-500">*</span>
+                  </label>
                   <input
                     type="email"
                     id="email"
@@ -109,8 +113,37 @@ const Contact: React.FC = () => {
                   {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
                 </div>
               </div>
+              {/* New row for LinkedIn ID and Mobile Number */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label htmlFor="linkedin" className="block text-sm font-medium text-gray-700 dark:text-gray-300">LinkedIn Profile</label>
+                  <input
+                    type="url"
+                    id="linkedin"
+                    name="linkedin"
+                    value={form.linkedin}
+                    onChange={handleChange}
+                    className="mt-1 block w-full rounded-lg border-primary-400 dark:border-gray-600 bg-primary-50 dark:bg-gray-900 text-gray-900 dark:text-white font-sans text-base px-3 py-2 shadow-sm focus:ring-2 focus:ring-primary-400"
+                    disabled={submitting}
+                  />
+                </div>
+                <div>
+                  <label htmlFor="mobile" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Mobile Number</label>
+                  <input
+                    type="tel"
+                    id="mobile"
+                    name="mobile"
+                    value={form.mobile}
+                    onChange={handleChange}
+                    className="mt-1 block w-full rounded-lg border-primary-400 dark:border-gray-600 bg-primary-50 dark:bg-gray-900 text-gray-900 dark:text-white font-sans text-base px-3 py-2 shadow-sm focus:ring-2 focus:ring-primary-400"
+                    disabled={submitting}
+                  />
+                </div>
+              </div>
               <div>
-                <label htmlFor="message" className="block text-sm font-medium text-gray-700 dark:text-gray-300">Message</label>
+                <label htmlFor="message" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Message <span className="text-red-500">*</span>
+                </label>
                 <textarea
                   id="message"
                   name="message"
