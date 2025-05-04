@@ -1,124 +1,96 @@
-# Portfolio Site
+# 🚀 Ritesh Lavti's Modern Portfolio Site
 
-A modern, full-stack personal portfolio web application with a robust admin dashboard, dynamic content, and secure authentication.
-
----
-
-## Table of Contents
-
-1. [Project Structure](#project-structure)
-2. [Features](#features)
-3. [Technologies Used](#technologies-used)
-4. [Frontend](#frontend)
-5. [Backend](#backend)
-6. [API Overview](#api-overview)
-7. [Setup & Running Locally](#setup--running-locally)
-8. [Deployment](#deployment)
-9. [Customization](#customization)
-10. [Contributing](#contributing)
-11. [License](#license)
+A beautiful, full-stack portfolio and blog platform with a powerful admin dashboard, secure authentication, dynamic content, and stunning animations. Built for developers, by a developer—easy to use, easy to extend, and mobile-first.
 
 ---
 
-## Project Structure
+## 📁 Project Structure
 
 ```
 portfolio-site/
 │
 ├── backend/
 │   ├── app/
-│   │   ├── api/endpoints/   # FastAPI endpoints (blog, projects, skills, testimonials, contact, auth, etc.)
-│   │   ├── core/            # Config, file utils, settings
+│   │   ├── api/endpoints/   # All API routes (blog, projects, skills, testimonials, contact, auth, upload, categories, tags)
+│   │   ├── core/            # Config, Supabase, file utils
 │   │   ├── db/              # Database setup
-│   │   ├── models/          # SQLAlchemy models
-│   │   ├── schemas/         # Pydantic schemas
-│   │   ├── uploads/         # Uploaded images/files
-│   │   └── ...
-│   ├── requirements.txt
-│   └── portfolio.db         # SQLite database (dev)
+│   │   ├── models/          # SQLAlchemy models (User, Blog, Project, Skill, Testimonial, Contact, etc.)
+│   │   ├── schemas/         # Pydantic schemas for validation
+│   │   └── uploads/         # Uploaded images/files (profile, blog, projects)
+│   ├── alembic/             # Database migrations
+│   ├── scripts/             # Utility scripts (e.g., create admin)
+│   └── requirements.txt     # Python dependencies
 │
 ├── frontend/
-│   ├── public/              # Static assets (images, favicon, etc.)
+│   ├── public/              # Static assets (images, favicon.svg, index.html)
 │   ├── src/
-│   │   ├── components/      # React components
-│   │   ├── context/         # React context providers (e.g., Auth, Toast)
-│   │   ├── data/            # Static fallback data (blog, testimonials, etc.)
-│   │   ├── pages/           # Page components (Home, Blog, Admin, etc.)
-│   │   └── ...
-│   ├── package.json
-│   └── tailwind.config.js
+│   │   ├── components/      # Reusable React components (Layout, ThemeToggle, Toast, ProtectedRoute, etc.)
+│   │   │   └── forms/       # Form UI components (Button, Input)
+│   │   ├── context/         # Global state (Auth, Theme, Toast)
+│   │   ├── data/            # Static fallback data (blog, testimonials, featured projects)
+│   │   ├── pages/           # Main pages (Home, Blog, Projects, Contact, About, Admin)
+│   │   │   └── admin/       # Admin dashboard & management pages
+│   │   └── styles/          # Custom CSS (e.g., animated backgrounds)
+│   ├── package.json         # Frontend dependencies
+│   └── tailwind.config.js   # Tailwind CSS config
 │
 └── README.md
 ```
 
 ---
 
-## Features
+## ✨ Features (What Makes This Special?)
 
-### Public
+### 🌐 Public Site
+- **Home**: Animated hero, profile, skills, featured projects, testimonials, and latest blogs.
+- **Projects**: Dynamic, filterable, and beautifully presented portfolio projects. Each card has a blurred/gradient background, tech stack, and links.
+- **Blog**: Rich blog posts with tags, related posts, author info, and reading time. Modern card previews and detail pages.
+- **Skills**: Visual grid of skills with icons and colors.
+- **Testimonials**: Carousel of real testimonials, animated and fetched live from the database.
+- **Contact**: Contact form (with rate limiting), social links, and Topmate integration for booking sessions.
+- **Dark Mode**: Toggle between light and dark themes. All colors, gradients, and backgrounds adapt.
+- **Mobile-First**: Every page and component is optimized for phones and tablets. Touch-friendly, responsive, and beautiful.
+- **Modern Animations**: Framer Motion for page transitions, menu, hero emoji, and more. 3D animated sphere in the footer with sparkling dots.
+- **Accessibility**: Focus trap, keyboard navigation, and ARIA labels in menus and dialogs.
+- **Performance**: Skeleton loaders, lazy loading, and optimized images.
 
-- **Homepage**: Introduction, profile, and highlights.
-- **Projects**: Dynamic portfolio projects with images, tech stack, and links.
-- **Blog**: Dynamic blog posts with rich content, tags, related posts, and share buttons.
-- **Skills**: Visual display of skills with icons and proficiency.
-- **Testimonials**: Dynamic testimonials from database (with optional static fallback).
-- **Contact**: Contact form, social links, and "Book a Free Session" (Topmate integration).
-- **Dark Mode**: Fully supported.
-- **Responsive Design**: Mobile-first, modern UI.
+### 🔒 Admin Dashboard (Superpowers!)
+- **Authentication**: Secure login with JWT. Only admins can access management pages.
+- **User-Level Protection**: All admin routes are protected. Non-admins are redirected. Session is persistent and validated on every page load.
+- **Dashboard**: Central hub to manage everything—blogs, projects, skills, testimonials, and profile images.
+- **Blog Management**: Create, edit, delete blog posts. Upload images, add tags, related posts, and rich text (with a modern editor).
+- **Project Management**: Full CRUD for projects. Upload images, set tech stack, mark as featured, and control order.
+- **Skill Management**: Add, edit, delete skills with icons and colors.
+- **Testimonial Management**: Add, edit, delete testimonials. All testimonials are shown live on the site.
+- **Profile Management**: Update hero and contact profile images.
+- **Image Uploads**: All uploads go to Supabase Storage (or local in dev). Only public URLs are stored and validated.
+- **Error Handling**: Friendly error messages, toast notifications, and skeleton loaders for all admin actions.
 
-### Admin
+### 🛡️ Security & Best Practices
+- **JWT Auth**: All admin APIs require a valid token. Tokens are stored securely and validated on every request.
+- **Protected Routes**: Frontend uses a `ProtectedRoute` component to guard all admin pages. Only admins can access sensitive actions.
+- **Rate Limiting**: Contact form is rate-limited to prevent spam.
+- **Environment Variables**: All secrets, API URLs, and DB credentials are kept out of the codebase.
 
-- **Dashboard**: Central hub for managing all content.
-- **Blog Management**: Create, edit, delete blog posts (with image upload, tags, related posts).
-- **Project Management**: CRUD for projects (with image upload, tech stack).
-- **Skill Management**: CRUD for skills (with icon upload).
-- **Testimonial Management**: Add, delete testimonials.
-- **Profile Management**: Upload/update hero and contact profile images.
-- **Authentication**: Secure login, JWT-based session, protected admin routes.
-
----
-
-## Technologies Used
-
-- **Frontend**: React (TypeScript), Tailwind CSS, React Router, React Context, React-Quill, react-icons
-- **Backend**: FastAPI, SQLAlchemy, Pydantic, python-jose (JWT), bcrypt, SQLite (dev), CORS, static file serving
-- **Other**: Toast notifications, custom hooks, modern UI/UX patterns
-
----
-
-## Frontend
-
-### Key Structure
-
-- `src/components/`: UI elements (Buttons, Inputs, Toasts, etc.)
-- `src/pages/`: Main pages (Home, Blog, BlogPost, Projects, Admin, etc.)
-- `src/pages/admin/`: Admin management pages (Blog, Projects, Skills, Testimonials, Profile)
-- `src/context/`: Global state (Auth, Toast)
-- `src/data/`: Static fallback data (used only if backend is unavailable)
-
-### Running the Frontend
-
-```bash
-cd frontend
-npm install
-npm start
-```
-- Runs on [http://localhost:3000](http://localhost:3000) by default.
+### 🎨 Animations & UI Polish
+- **Framer Motion**: Used for menu transitions, hero emoji wave, card hover, and more.
+- **3D Footer Sphere**: Interactive, animated sphere with sparkles, especially shiny in dark mode and on mobile.
+- **Modern SVG Favicon**: Custom `</>` icon with a blue-purple gradient for instant recognition.
+- **Radial Gradients & Blurred Previews**: Project and blog cards use gradients and blurred images for a modern look.
+- **Mobile Menu**: Animated, touch-friendly, with social links and accessibility features.
 
 ---
 
-## Backend
+## 🛠️ Technologies Used
+- **Frontend**: React (TypeScript), Tailwind CSS, Framer Motion, React Router, React Context, React-Quill, react-icons
+- **Backend**: FastAPI, SQLAlchemy, Pydantic, python-jose (JWT), bcrypt, SQLite (dev), Supabase Storage, CORS
+- **Other**: Toast notifications, custom hooks, accessibility best practices
 
-### Key Structure
+---
 
-- `app/api/endpoints/`: All API routes (blog, projects, skills, testimonials, contact, auth, upload, categories, tags)
-- `app/models/`: SQLAlchemy models for all entities
-- `app/schemas/`: Pydantic schemas for validation
-- `app/uploads/`: Uploaded images/files
-- `portfolio.db`: SQLite database (for development)
+## 👩‍💻 How to Run Locally
 
-### Running the Backend
-
+### Backend
 ```bash
 cd backend
 python -m venv venv
@@ -126,50 +98,69 @@ source venv/bin/activate  # or venv\Scripts\activate on Windows
 pip install -r requirements.txt
 uvicorn app.main:app --reload
 ```
-- Runs on [http://localhost:8000](http://localhost:8000) by default.
+- Runs on [http://localhost:8000](http://localhost:8000)
+
+### Frontend
+```bash
+cd frontend
+npm install
+npm start
+```
+- Runs on [http://localhost:3000](http://localhost:3000)
 
 ---
 
-## API Overview
-
-### Authentication
-
-- `POST /api/v1/auth/login` – Login, returns JWT token
-- `GET /api/v1/auth/validate` – Validate token (for session persistence)
-
-### Public Endpoints
-
-- `GET /api/v1/blog/` – List blog posts
-- `GET /api/v1/blog/{slug}` – Get blog post by slug
-- `GET /api/v1/projects/` – List projects
-- `GET /api/v1/projects/{id}` – Get project by ID
-- `GET /api/v1/skills/` – List skills
-- `GET /api/v1/testimonials/` – List testimonials
-- `GET /api/v1/contact/` – Get contact/profile info
-- `GET /api/v1/categories/` – List categories
-- `GET /api/v1/tags/` – List tags
-
-### Protected/Admin Endpoints (require JWT)
-
-- `POST/PUT/DELETE /api/v1/blog/` – Create, update, delete blog posts
-- `POST/PUT/DELETE /api/v1/projects/` – Create, update, delete projects
-- `POST/PUT/DELETE /api/v1/skills/` – Create, update, delete skills
-- `POST/PUT/DELETE /api/v1/testimonials/` – Create, update, delete testimonials
-- `POST/PUT /api/v1/contact/` – Create or update contact/profile info
-- `POST /api/v1/upload/` – Upload images (profile, project, blog, generic)
-
-### Other
-
-- `POST /api/v1/contact/send-message` – Send contact form message (rate-limited)
-- `/uploads/` – Static file serving for images
+## 🧑‍💼 Admin Panel: User-Level Protection
+- **Login Required**: Only authenticated admins can access `/admin` routes.
+- **ProtectedRoute**: All admin pages are wrapped in a `ProtectedRoute` component. If not logged in, you're redirected to `/login`.
+- **Role-Based Access**: Only users with `role: 'admin'` can perform admin actions. Others are redirected to the homepage.
+- **Session Persistence**: JWT tokens are stored securely and validated on every page load.
+- **Logout**: One-click logout from the dashboard.
 
 ---
 
-## Database Models
+## 🧩 All Features & Pages (In Detail)
 
+### Public Pages
+- **Home**: Animated hero, skills, featured projects, testimonials, latest blogs, and a 3D animated footer.
+- **Projects**: List and detail pages, with images, tech stack, and links. Featured projects are curated and ordered.
+- **Blog**: List and detail pages, with tags, related posts, author info, and reading time. Rich text and code blocks supported.
+- **About**: Responsive, mobile-optimized about page with cards and grid.
+- **Contact**: Contact form (with validation and rate limiting), social/contact icons, and Topmate integration.
+- **Testimonials**: Carousel of real testimonials, animated and fetched live from the database.
+- **Dark Mode**: Toggle with a single click. All colors, gradients, and backgrounds adapt.
+- **Mobile Menu**: Animated, touch-friendly, with social links and accessibility features.
+- **Footer**: 3D animated sphere with sparkles, especially shiny in dark mode and on mobile.
+
+### Admin Pages
+- **Dashboard**: Central hub for managing all content.
+- **Blog Management**: Create, edit, delete blog posts. Upload images, add tags, related posts, and rich text.
+- **Project Management**: Full CRUD for projects. Upload images, set tech stack, mark as featured, and control order.
+- **Skill Management**: Add, edit, delete skills with icons and colors.
+- **Testimonial Management**: Add, edit, delete testimonials. All testimonials are shown live on the site.
+- **Profile Management**: Update hero and contact profile images.
+- **Image Uploads**: All uploads go to Supabase Storage (or local in dev). Only public URLs are stored and validated.
+- **Error Handling**: Friendly error messages, toast notifications, and skeleton loaders for all admin actions.
+
+---
+
+## 🗂️ API Overview (RESTful)
+- **Auth**: `/auth/login`, `/auth/validate` (JWT)
+- **Blog**: `/blog/`, `/blog/{slug}` (CRUD, tags, related)
+- **Projects**: `/projects/`, `/projects/{id}` (CRUD, featured)
+- **Skills**: `/skills/` (CRUD)
+- **Testimonials**: `/testimonials/` (CRUD)
+- **Contact**: `/contact/` (CRUD, profile images)
+- **Upload**: `/upload/` (images)
+- **Categories/Tags**: `/categories/`, `/tags/`
+- **Contact Form**: `/contact/send-message` (rate-limited)
+
+---
+
+## 🏗️ Database Models
 - **User**: id, email, password (bcrypt), name, role
 - **BlogPost**: id, title, slug, content, excerpt, featured_image, is_published, read_time, author_name, author_avatar, related_posts, created_at, updated_at, category_id, tags (many-to-many)
-- **Project**: id, title, description, image_url, technologies (JSON), github_url, live_url, is_featured, created_at
+- **Project**: id, title, description, image_url, technologies (JSON), github_url, live_url, is_featured, featured_order, created_at
 - **Skill**: id, name, icon, color
 - **Testimonial**: id, name, role, text, rating, verify_url, created_at
 - **ContactInfo**: id, profile_image, contact_profile_image
@@ -178,46 +169,27 @@ uvicorn app.main:app --reload
 
 ---
 
-## Deployment
-
-- **Frontend**: Deploy to Vercel, Netlify, or any static hosting.
-- **Backend**: Deploy to any Python server (Heroku, Render, DigitalOcean, etc.).
-- **Database**: Use SQLite for dev, Postgres (e.g., Supabase) for production.
-- **Environment Variables**: Set API URLs, DB URLs, CORS origins, JWT secret, SMTP for contact form, etc.
-- **Static Files**: Ensure `/uploads` is writable and served.
-
----
-
-## Customization
-
-- **Theme**: Edit `tailwind.config.js` for colors, fonts, etc.
-- **Content**: Use the admin dashboard for all content management.
+## 🎨 Customization & Theming
+- **Colors & Fonts**: Edit `tailwind.config.js` for your own palette and typography.
+- **Content**: Use the admin dashboard for all content management. No code changes needed for new blogs, projects, skills, or testimonials.
 - **Images**: Upload via admin or place in `frontend/public/images/`.
 - **Sections**: Add/remove sections by editing React components in `src/pages/` and `src/components/`.
+- **Favicon**: Modern SVG favicon with a gradient and `</>` symbol for instant recognition.
 
 ---
 
-## Contributing
-
-1. Fork the repo and clone it.
-2. Create a new branch for your feature/fix.
-3. Make your changes and commit with clear messages.
-4. Push to your fork and open a Pull Request.
-
----
-
-## License
-
-MIT
+## 🧑‍🎨 Animations & UI Polish
+- **Framer Motion**: Used for menu transitions, hero emoji wave, card hover, and more.
+- **3D Footer Sphere**: Interactive, animated sphere with sparkles, especially shiny in dark mode and on mobile.
+- **Radial Gradients & Blurred Previews**: Project and blog cards use gradients and blurred images for a modern look.
+- **Mobile Menu**: Animated, touch-friendly, with social links and accessibility features.
 
 ---
 
-## Credits
-
-- Built by Ritesh Lavti
-- [LinkedIn: linkedin.com/in/riteshlavti](https://linkedin.com/in/riteshlavti)
-- Inspired by modern portfolio and blog designs.
+## 🧑‍💻 Contributing
+Pull requests are welcome! For major changes, please open an issue first to discuss what you would like to change.
 
 ---
 
-**For any questions or issues, please open an issue on GitHub or contact the maintainer.**
+## 📄 License
+[MIT](LICENSE)

@@ -51,7 +51,7 @@ const About: React.FC = () => {
   ];
 
   return (
-    <div className="container mx-auto px-8 sm:px-12 lg:px-16 py-4">
+    <div className="container mx-auto px-4 sm:px-8 lg:px-16 py-4">
       {/* Hero Section */}
       <div className="text-center mb-4">
         <div className="w-24 h-24 mx-auto mb-2 rounded-full bg-primary-100 dark:bg-primary-900 flex items-center justify-center">
@@ -68,7 +68,7 @@ const About: React.FC = () => {
       </div>
 
       {/* Introduction Section */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 mb-8">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 sm:p-8 mb-8">
         <div className="flex items-center mb-6">
           <div className="w-10 h-10 rounded-full bg-primary-100 dark:bg-primary-900 flex items-center justify-center mr-3">
             <svg className="w-5 h-5 text-primary-600 dark:text-primary-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -90,7 +90,7 @@ const About: React.FC = () => {
       </div>
 
       {/* Skills Section */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 mb-8">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 sm:p-8 mb-8">
         <div className="flex items-center mb-6">
           <div className="w-10 h-10 rounded-full bg-primary-100 dark:bg-primary-900 flex items-center justify-center mr-3">
             <svg className="w-5 h-5 text-primary-600 dark:text-primary-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -101,7 +101,7 @@ const About: React.FC = () => {
             Skills
           </h2>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
           <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
             <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-3 flex items-center">
               <svg className="w-4 h-4 mr-2 text-primary-600 dark:text-primary-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -188,7 +188,7 @@ const About: React.FC = () => {
       </div>
 
       {/* Timeline Section */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 mb-8">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 sm:p-8 mb-8">
         <div className="flex items-center mb-6">
           <div className="w-10 h-10 rounded-full bg-primary-100 dark:bg-primary-900 flex items-center justify-center mr-3">
             <svg className="w-5 h-5 text-primary-600 dark:text-primary-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -204,14 +204,14 @@ const About: React.FC = () => {
           <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-gray-200 dark:bg-gray-700 transition-all duration-500"></div>
           
           {/* Timeline items */}
-          <div className="space-y-8">
+          <div className="space-y-6 sm:space-y-8">
             {timelineData.map((item, idx) => (
-              <div key={item.id} className="relative pl-16">
+              <div key={item.id} className="relative pl-12 sm:pl-16">
                 {/* Animated timeline line segment for expanded entry */}
                 {openTimeline === item.id && (
                   <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-primary-400 dark:bg-primary-500 z-10 transition-all duration-500" style={{ boxShadow: '0 0 8px 2px rgba(59,130,246,0.25)' }}></div>
                 )}
-                <div className={`absolute left-0 w-11 h-11 flex items-center justify-center border-2 rounded-full transition-all duration-300 z-20
+                <div className={`absolute left-0 w-9 h-9 sm:w-11 sm:h-11 flex items-center justify-center border-2 rounded-full transition-all duration-300 z-20
                   ${openTimeline === item.id
                     ? 'scale-105 border-primary-500 shadow-[0_0_12px_2px_rgba(59,130,246,0.25)] bg-white dark:bg-gray-800'
                     : 'border-primary-100 dark:border-primary-900 bg-white dark:bg-gray-800'}
@@ -219,11 +219,11 @@ const About: React.FC = () => {
                 <img 
                     src={item.logo} 
                     alt={item.alt} 
-                    className="w-9 h-9 object-cover rounded-full"
+                    className="w-7 h-7 sm:w-9 sm:h-9 object-cover rounded-full"
                   />
                 </div>
                 <div
-                  className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 cursor-pointer transition-shadow hover:shadow-lg"
+                  className="bg-gray-50 dark:bg-gray-700 rounded-lg p-3 sm:p-4 cursor-pointer transition-shadow hover:shadow-lg"
                   onClick={() => setOpenTimeline(openTimeline === item.id ? null : item.id)}
                 >
                   <div className="flex items-center justify-between">
@@ -255,7 +255,7 @@ const About: React.FC = () => {
             </div>
 
       {/* Interests Section */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 mb-0">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 sm:p-8 mb-0">
         <div className="flex items-center mb-6">
           <div className="w-10 h-10 rounded-full bg-primary-100 dark:bg-primary-900 flex items-center justify-center mr-3">
             <svg className="w-5 h-5 text-primary-600 dark:text-primary-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -266,7 +266,7 @@ const About: React.FC = () => {
             Interests
           </h2>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 sm:gap-4">
           <div className="flex items-center bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
             <span className="text-2xl mr-4">🤖</span>
             <span className="text-gray-800 dark:text-gray-100">Exploring AI and automation in daily life</span>
@@ -291,7 +291,7 @@ const About: React.FC = () => {
       </div>
 
       {/* Connect with Me Section */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 mt-8">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 sm:p-8 mt-8">
         <div className="text-center mb-6">
           <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-2">
             Let's Connect!
@@ -300,7 +300,7 @@ const About: React.FC = () => {
             Ready to collaborate on exciting projects? Let's turn ideas into reality together!
           </p>
         </div>
-        <div className="flex justify-center items-center space-x-6 mb-6">
+        <div className="flex flex-wrap justify-center items-center gap-4 sm:gap-6 mb-6">
           <a
             href="https://linkedin.com/in/riteshlavti"
             target="_blank"

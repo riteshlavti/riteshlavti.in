@@ -67,21 +67,21 @@ const Contact: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto px-8 sm:px-12 lg:px-16 py-8">
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-8">
+    <div className="container mx-auto px-4 sm:px-12 lg:px-16 py-8">
+      <div className="max-w-4xl w-full mx-auto">
+        <h1 className="text-2xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-6 sm:mb-8">
           Get in Touch
         </h1>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-12">
           {/* Left: Contact Form & Information */}
           <div className="flex flex-col justify-center space-y-8">
             {/* Contact Form */}
-            <form onSubmit={handleSubmit} className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 space-y-6">
-              <h2 className="text-2xl font-semibold text-primary-600 dark:text-primary-400 mb-2 flex items-center gap-2">
+            <form onSubmit={handleSubmit} className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 sm:p-6 space-y-5 sm:space-y-6">
+              <h2 className="text-lg sm:text-2xl font-semibold text-primary-600 dark:text-primary-400 mb-2 flex items-center gap-2">
                 I'd love to hear from you!
                 <FaHeart className="w-6 h-6 text-red-500 fill-red-500" />
               </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                 <div>
                   <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                     Name <span className="text-red-500">*</span>
@@ -114,7 +114,7 @@ const Contact: React.FC = () => {
                 </div>
               </div>
               {/* New row for LinkedIn ID and Mobile Number */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                 <div>
                   <label htmlFor="linkedin" className="block text-sm font-medium text-gray-700 dark:text-gray-300">LinkedIn Profile</label>
                   <input
@@ -150,7 +150,7 @@ const Contact: React.FC = () => {
                   rows={4}
                   value={form.message}
                   onChange={handleChange}
-                  className={`mt-1 block w-full rounded-lg border-primary-400 dark:border-gray-600 bg-primary-50 dark:bg-gray-900 text-gray-900 dark:text-white font-sans text-base px-3 py-2 shadow-sm focus:ring-2 focus:ring-primary-400 placeholder-gray-500 dark:placeholder-gray-400 ${errors.message ? 'border-red-500' : ''}`}
+                  className={`mt-1 block w-full rounded-lg border-primary-400 dark:border-gray-600 bg-primary-50 dark:bg-gray-900 text-gray-900 dark:text-white font-sans text-sm sm:text-base px-3 py-2 shadow-sm focus:ring-2 focus:ring-primary-400 placeholder-gray-500 dark:placeholder-gray-400 ${errors.message ? 'border-red-500' : ''}`}
                   disabled={submitting}
                   placeholder="Type your message here..."
                 />
@@ -158,7 +158,7 @@ const Contact: React.FC = () => {
               </div>
               <button
                 type="submit"
-                className="w-full py-2 px-4 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-md transition-colors disabled:opacity-60"
+                className="w-full py-2 px-3 sm:px-4 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-md transition-colors disabled:opacity-60 text-sm sm:text-base"
                 disabled={submitting}
               >
                 {submitting ? 'Sending...' : 'Send Message'}
@@ -168,18 +168,18 @@ const Contact: React.FC = () => {
 
           {/* Contact Information */}
             <div>
-              <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
+              <h2 className="text-lg sm:text-2xl font-semibold text-gray-900 dark:text-white mb-3 sm:mb-4">
                 Contact Information
               </h2>
-              <div className="space-y-4">
-                <div className="flex items-start space-x-4">
+              <div className="space-y-3 sm:space-y-4">
+                <div className="flex items-start space-x-3 sm:space-x-4">
                   <FiMail className="w-6 h-6 text-gray-600 dark:text-gray-400 mt-1" />
                   <div>
                     <h3 className="text-lg font-medium text-gray-900 dark:text-white">Email</h3>
                     <a href="mailto:riteshlavti@gmail.com" className="text-gray-600 dark:text-gray-400 hover:underline" aria-label="Send email to riteshlavti@gmail.com">riteshlavti@gmail.com</a>
                   </div>
                 </div>
-                <div className="flex items-start space-x-4">
+                <div className="flex items-start space-x-3 sm:space-x-4">
                   <FiMapPin className="w-6 h-6 text-gray-600 dark:text-gray-400 mt-1" />
                   <div>
                     <h3 className="text-lg font-medium text-gray-900 dark:text-white">Location</h3>
@@ -190,10 +190,10 @@ const Contact: React.FC = () => {
             </div>
 
             <div>
-              <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">
+              <h2 className="text-lg sm:text-2xl font-semibold text-gray-900 dark:text-white mb-3 sm:mb-4">
                 Connect with Me
               </h2>
-              <div className="flex space-x-4 items-center">
+              <div className="flex flex-wrap gap-3 sm:gap-4 items-center">
                 <a
                   href="https://linkedin.com/in/riteshlavti"
                   target="_blank"
@@ -219,7 +219,7 @@ const Contact: React.FC = () => {
                   </svg>
                 </a>
                 <a
-                  href="https://instagram.com"
+                  href="https://instagram.com/ritesh__maheshwari"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-[#E4405F] hover:opacity-80 transition-opacity"

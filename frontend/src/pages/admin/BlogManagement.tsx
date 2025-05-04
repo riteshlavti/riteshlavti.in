@@ -213,7 +213,6 @@ const BlogManagement: React.FC = () => {
       });
       if (response.ok) {
         const data = await response.json();
-        console.log('Fetched blog post data:', data); // Debug log
         setCurrentPost({
           id: data.id,
           slug: data.slug,
@@ -254,7 +253,6 @@ const BlogManagement: React.FC = () => {
     }
   };
 
-  console.log('CurrentPost before render:', currentPost);
 
   const filteredTagSuggestions = allTags.filter(
     tag => tag.toLowerCase().includes(tagInput.toLowerCase()) && !tags.includes(tag)

@@ -15,6 +15,9 @@ interface Project {
   github_url: string;
   live_url: string;
   technologies: string[];
+  excerpt: string;
+  is_featured?: boolean;
+  featured_order?: number;
 }
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
@@ -26,6 +29,7 @@ const ProjectManagement: React.FC = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [currentProject, setCurrentProject] = useState<Partial<Project>>({});
   const [technologies, setTechnologies] = useState<string>('');
+  const [excerpt, setExcerpt] = useState('');
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -91,7 +95,7 @@ const ProjectManagement: React.FC = () => {
   const uploadImage = async (file: File): Promise<string> => {
     const formData = new FormData();
     formData.append('file', file);
-    const response = await fetch(apiUrl('/upload/image'), {
+    const response = await fetch(apiUrl('/upload/image?type=project'), {
       method: 'POST',
       body: formData,
       headers: {
@@ -118,6 +122,9 @@ const ProjectManagement: React.FC = () => {
         ...currentProject,
         image_url: imageUrl,
         technologies: technologies.split(',').map(tech => tech.trim()),
+        excerpt,
+        is_featured: !!currentProject.is_featured,
+        featured_order: currentProject.is_featured ? currentProject.featured_order : null,
       };
       const url = isEditing ? apiUrl(`/projects/${currentProject.id}`) : apiUrl('/projects');
       const method = isEditing ? 'PUT' : 'POST';
@@ -125,6 +132,7 @@ const ProjectManagement: React.FC = () => {
         method,
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify(projectData),
       });
@@ -170,8 +178,13 @@ const ProjectManagement: React.FC = () => {
 
   const handleEdit = (project: Project) => {
     resetForm();
-    setCurrentProject(project);
+    setCurrentProject({
+      ...project,
+      is_featured: !!project.is_featured,
+      featured_order: project.featured_order ?? undefined,
+    });
     setTechnologies(project.technologies.join(', '));
+    setExcerpt(project.excerpt || '');
     setSelectedImages([]);
     setIsEditing(true);
   };
@@ -179,6 +192,7 @@ const ProjectManagement: React.FC = () => {
   const resetForm = () => {
     setCurrentProject({});
     setTechnologies('');
+    setExcerpt('');
     setSelectedImages([]);
     setIsEditing(false);
     if (fileInputRef.current) {
@@ -205,6 +219,14 @@ const ProjectManagement: React.FC = () => {
           value={currentProject.title || ''}
           onChange={(e) => setCurrentProject({ ...currentProject, title: e.target.value })}
           required
+        />
+        <Input
+          label="Excerpt (short summary)"
+          value={excerpt}
+          onChange={e => setExcerpt(e.target.value)}
+          required={!isEditing}
+          placeholder="A short summary for project cards (max 300 chars)"
+          maxLength={300}
         />
         <div className="mb-4">
           <label className="block text-sm font-medium mb-1 dark:text-gray-200">
@@ -246,6 +268,31 @@ const ProjectManagement: React.FC = () => {
           onChange={(e) => setTechnologies(e.target.value)}
           placeholder="React, TypeScript, Node.js"
         />
+        <div className="mb-4 flex items-center gap-4">
+          <label className="flex items-center text-sm font-medium dark:text-gray-200">
+            <input
+              type="checkbox"
+              checked={!!currentProject.is_featured}
+              onChange={e => setCurrentProject({ ...currentProject, is_featured: e.target.checked })}
+              className="mr-2"
+            />
+            Featured Project
+          </label>
+          {currentProject.is_featured && (
+            <div className="flex items-center gap-2">
+              <label className="text-sm font-medium dark:text-gray-200" htmlFor="featured_order">Featured Order:</label>
+              <input
+                id="featured_order"
+                type="number"
+                min={1}
+                value={currentProject.featured_order ?? ''}
+                onChange={e => setCurrentProject({ ...currentProject, featured_order: e.target.value === '' ? undefined : Number(e.target.value) })}
+                className="w-20 px-2 py-1 rounded border border-gray-300 dark:bg-gray-800 dark:text-white"
+                placeholder="Order"
+              />
+            </div>
+          )}
+        </div>
         <div className="mb-4">
           <label className="block text-sm font-medium mb-1 dark:text-gray-200">
             Images
@@ -327,43 +374,61 @@ const ProjectManagement: React.FC = () => {
 
       <h2 className="text-2xl font-bold mb-4 dark:text-white">Existing Projects</h2>
       <div className="grid gap-4">
-        {projects.map((project) => (
-          <div
-            key={project.id}
-            className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow"
-          >
-            <h3 className="text-xl font-semibold mb-2 dark:text-white">
-              {project.title}
-            </h3>
-            <p className="text-gray-600 dark:text-gray-300 mb-4">
-              {project.description}
-            </p>
-            <div className="flex flex-wrap gap-2 mb-4">
-              {project.technologies.map((tech) => (
-                <span
-                  key={tech}
-                  className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-sm dark:bg-blue-900 dark:text-blue-200"
+        {isLoading && !isEditing ? (
+          Array.from({ length: 3 }).map((_, idx) => (
+            <div key={idx} className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow animate-pulse">
+              <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-1/2 mb-2" />
+              <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/3 mb-4" />
+              <div className="h-32 bg-gray-200 dark:bg-gray-700 rounded mb-4" />
+              <div className="flex gap-2 mb-4">
+                <div className="h-6 w-16 bg-gray-200 dark:bg-gray-700 rounded-full" />
+                <div className="h-6 w-16 bg-gray-200 dark:bg-gray-700 rounded-full" />
+              </div>
+              <div className="flex gap-2">
+                <div className="h-10 w-24 bg-gray-200 dark:bg-gray-700 rounded" />
+                <div className="h-10 w-24 bg-gray-200 dark:bg-gray-700 rounded" />
+              </div>
+            </div>
+          ))
+        ) : (
+          projects.map((project) => (
+            <div
+              key={project.id}
+              className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow"
+            >
+              <h3 className="text-xl font-semibold mb-2 dark:text-white">
+                {project.title}
+              </h3>
+              <p className="text-gray-600 dark:text-gray-300 mb-4">
+                {project.description}
+              </p>
+              <div className="flex flex-wrap gap-2 mb-4">
+                {project.technologies.map((tech) => (
+                  <span
+                    key={tech}
+                    className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-sm dark:bg-blue-900 dark:text-blue-200"
+                  >
+                    {tech}
+                  </span>
+                ))}
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  variant="secondary"
+                  onClick={() => handleEdit(project)}
                 >
-                  {tech}
-                </span>
-              ))}
+                  Edit
+                </Button>
+                <Button
+                  variant="danger"
+                  onClick={() => handleDelete(project.id)}
+                >
+                  Delete
+                </Button>
+              </div>
             </div>
-            <div className="flex gap-2">
-              <Button
-                variant="secondary"
-                onClick={() => handleEdit(project)}
-              >
-                Edit
-              </Button>
-              <Button
-                variant="danger"
-                onClick={() => handleDelete(project.id)}
-              >
-                Delete
-              </Button>
-            </div>
-          </div>
-        ))}
+          ))
+        )}
       </div>
     </div>
   );

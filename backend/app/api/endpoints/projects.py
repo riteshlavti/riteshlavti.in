@@ -8,6 +8,8 @@ from app.schemas.project import ProjectCreate, ProjectUpdate
 import json
 from app.api.endpoints.auth import get_current_user
 from app.models.user import User
+from app.core.supabase_client import upload_to_supabase
+import time
 
 router = APIRouter()
 
@@ -22,6 +24,7 @@ def get_projects(
     query = db.query(Project)
     if featured_only:
         query = query.filter(Project.is_featured == True)
+        query = query.order_by(Project.featured_order.asc().nullslast(), Project.created_at.desc())
     projects = query.offset(skip).limit(limit).all()
     results = []
     for p in projects:
@@ -33,7 +36,25 @@ def get_projects(
             item['image_url'] = str(request.base_url).rstrip('/') + item['image_url']
         # Ensure all expected fields are present
         for field in [
-            'id', 'title', 'description', 'image_url', 'technologies', 'github_url', 'live_url', 'is_featured', 'created_at', 'updated_at']:
+            'id', 'title', 'description', 'excerpt', 'image_url', 'technologies', 'github_url', 'live_url', 'is_featured', 'featured_order', 'created_at', 'updated_at']:
+            if field not in item:
+                item[field] = None
+        results.append(item)
+    return results
+
+@router.get("/featured", response_model=List[ProjectSchema])
+def get_featured_projects(db: Session = Depends(get_db), request: Request = None):
+    query = db.query(Project).filter(Project.is_featured == True)
+    query = query.order_by(Project.featured_order.asc().nullslast(), Project.created_at.desc())
+    projects = query.all()
+    results = []
+    for p in projects:
+        item = p.__dict__.copy()
+        item['technologies'] = json.loads(p.technologies) if p.technologies else []
+        if item.get('image_url') and item['image_url'].startswith('/uploads/'):
+            item['image_url'] = str(request.base_url).rstrip('/') + item['image_url']
+        for field in [
+            'id', 'title', 'description', 'excerpt', 'image_url', 'technologies', 'github_url', 'live_url', 'is_featured', 'featured_order', 'created_at', 'updated_at']:
             if field not in item:
                 item[field] = None
         results.append(item)
@@ -51,21 +72,25 @@ def get_project(project_id: int, db: Session = Depends(get_db), request: Request
     if item.get('image_url') and item['image_url'].startswith('/uploads/'):
         item['image_url'] = str(request.base_url).rstrip('/') + item['image_url']
     for field in [
-        'id', 'title', 'description', 'image_url', 'technologies', 'github_url', 'live_url', 'is_featured', 'created_at', 'updated_at']:
+        'id', 'title', 'description', 'excerpt', 'image_url', 'technologies', 'github_url', 'live_url', 'is_featured', 'created_at', 'updated_at']:
         if field not in item:
             item[field] = None
     return item
 
 @router.post("/", response_model=ProjectSchema)
 def create_project(project: ProjectCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    if project.image_url and not project.image_url.startswith('http'):
+        raise HTTPException(status_code=400, detail="Project image_url must be a public Supabase URL. Upload the image first and use the returned URL.")
     db_project = Project(
         title=project.title,
         description=project.description,
+        excerpt=project.excerpt,
         image_url=project.image_url,
         technologies=json.dumps(project.technologies),
         github_url=project.github_url,
         live_url=project.live_url,
-        is_featured=project.is_featured
+        is_featured=project.is_featured,
+        featured_order=project.featured_order,
     )
     db.add(db_project)
     db.commit()
@@ -86,6 +111,8 @@ def update_project(
         raise HTTPException(status_code=404, detail="Project not found")
     
     update_data = project.dict(exclude_unset=True)
+    if "image_url" in update_data and update_data["image_url"] and not update_data["image_url"].startswith('http'):
+        raise HTTPException(status_code=400, detail="Project image_url must be a public Supabase URL. Upload the image first and use the returned URL.")
     if "technologies" in update_data:
         update_data["technologies"] = json.dumps(update_data["technologies"])
     for field, value in update_data.items():

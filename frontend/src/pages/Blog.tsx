@@ -12,6 +12,12 @@ function formatDate(dateStr: string): string {
   return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 }
 
+// Utility to strip HTML tags
+function stripHtml(html: string) {
+  if (!html) return '';
+  return html.replace(/<[^>]+>/g, '');
+}
+
 const Blog: React.FC = () => {
   const [allPosts, setAllPosts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -49,11 +55,11 @@ const Blog: React.FC = () => {
   }, []);
 
   return (
-    <div className="container mx-auto px-8 sm:px-12 lg:px-16 py-8">
+    <div className="container mx-auto px-4 sm:px-12 lg:px-16 py-8">
       {/* Hero Section */}
       <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-          My Blog
+        <h1 className="text-5xl font-extrabold text-gray-900 dark:text-white mb-6 tracking-tight font-serif">
+          My Blogs
         </h1>
         <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
           Sharing my thoughts, experiences, and insights about technology, development, and more.
@@ -61,63 +67,103 @@ const Blog: React.FC = () => {
       </div>
 
       {/* Blog Posts Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-8">
         {loading ? (
-          <div>Loading...</div>
+          // Skeleton loader for 3 blog cards
+          Array.from({ length: 3 }).map((_, idx) => (
+            <div key={idx} className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden animate-pulse">
+              <div className="w-full h-40 sm:h-48 bg-gray-200 dark:bg-gray-700" />
+              <div className="p-4 sm:p-6">
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2 mb-4" />
+                <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-2" />
+                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full mb-4" />
+                <div className="flex items-center justify-between mt-4">
+                  <div className="flex gap-2">
+                    <div className="h-6 w-16 bg-gray-200 dark:bg-gray-700 rounded-full" />
+                    <div className="h-6 w-16 bg-gray-200 dark:bg-gray-700 rounded-full" />
+                  </div>
+                  <div className="h-6 w-20 bg-gray-200 dark:bg-gray-700 rounded" />
+                </div>
+              </div>
+            </div>
+          ))
         ) : error ? (
           <div className="text-red-500">{error}</div>
         ) : allPosts.length === 0 ? (
           <div>No blogs found.</div>
         ) : (
-          allPosts.map((post) => (
-            <article key={post.slug} className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden transition-transform duration-200 hover:transform hover:scale-105">
-              <img 
-                src={post.image}
-                alt={post.title}
-                className="w-full h-48 object-cover rounded-t-xl border-t-4 border-white"
-              />
-              <div className="p-6">
-                <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-2">
-                  <span>{post.date}</span>
-                  {post.read_time && (
-                    <>
-                      <span className="mx-2">•</span>
-                      <span>{post.read_time}</span>
-                    </>
+          allPosts.map((post) => {
+            // Fallback gradient if image is missing
+            const fallbackGradient = 'radial-gradient(circle at 60% 40%, #a5b4fc 0%, #f0abfc 60%, #f9fafb 100%)';
+            const hasImage = !!post.image;
+            return (
+              <article key={post.slug} className="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden transition-transform duration-200 hover:transform hover:scale-105">
+                <div
+                  className="relative w-full h-40 sm:h-48 flex items-stretch justify-center rounded-t-xl overflow-hidden"
+                  style={{ background: !hasImage ? fallbackGradient : undefined }}
+                >
+                  {hasImage && (
+                    <img
+                      src={post.image}
+                      alt=""
+                      aria-hidden="true"
+                      className="absolute inset-0 w-full h-full object-cover blur-lg scale-110 brightness-75 z-0"
+                    />
+                  )}
+                  {hasImage && (
+                    <img
+                      src={post.image}
+                      alt={post.title}
+                      className="relative z-10 max-h-full max-w-full h-full object-contain"
+                    />
+                  )}
+                  {!hasImage && (
+                    <span className="relative z-10 text-gray-400 text-lg">No Image</span>
                   )}
                 </div>
-                <Link 
-                  to={`/blog/${post.slug}`}
-                  className="block"
-                >
-                  <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2 hover:text-primary-600 dark:hover:text-primary-400 transition-colors line-clamp-2">
-                    {post.title}
-                  </h2>
-                </Link>
-                <p className="text-gray-600 dark:text-gray-300 mb-4 line-clamp-3">
-                  {post.excerpt}
-                </p>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    {(post.tags || []).map((tag: string) => (
-                      <span 
-                        key={tag}
-                        className="px-3 py-1 bg-primary-100 dark:bg-primary-900 text-primary-800 dark:text-primary-100 rounded-full text-sm font-medium"
-                      >
-                        {tag}
-                      </span>
-                    ))}
+                <div className="p-4 sm:p-6">
+                  <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 mb-2">
+                    <span>{post.date}</span>
+                    {post.read_time && (
+                      <>
+                        <span className="mx-2">•</span>
+                        <span>{post.read_time}</span>
+                      </>
+                    )}
                   </div>
                   <Link 
                     to={`/blog/${post.slug}`}
-                    className="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium"
+                    className="block"
                   >
-                    Read More →
+                    <h2 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white mb-2 hover:text-primary-600 dark:hover:text-primary-400 transition-colors line-clamp-2">
+                      {post.title}
+                    </h2>
                   </Link>
+                  <p className="text-sm sm:text-base text-gray-600 dark:text-gray-300 mb-4 line-clamp-3">
+                    {post.excerpt && post.excerpt.trim() !== '' ? post.excerpt : stripHtml(post.content)}
+                  </p>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      {(post.tags || []).map((tag: string) => (
+                        <span 
+                          key={tag}
+                          className="px-3 py-1 bg-primary-100 dark:bg-primary-900 text-primary-800 dark:text-primary-100 rounded-full text-sm font-medium"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                    <Link 
+                      to={`/blog/${post.slug}`}
+                      className="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium"
+                    >
+                      Read More →
+                    </Link>
+                  </div>
                 </div>
-              </div>
-            </article>
-          ))
+              </article>
+            );
+          })
         )}
       </div>
 

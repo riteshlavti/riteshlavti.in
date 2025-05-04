@@ -6,6 +6,7 @@ export interface FeaturedProject {
   id: number;
   title: string;
   description: string;
+  excerpt?: string;
   technologies: string[];
   image: string;
   url?: string;
@@ -15,17 +16,15 @@ export interface FeaturedProject {
 }
 
 export async function fetchFeaturedProjects(): Promise<FeaturedProject[]> {
-  const res = await fetch(apiUrl('/projects?limit=3&skip=0'));
-  if (!res.ok) throw new Error('Failed to fetch projects');
+  const res = await fetch(apiUrl('/projects/featured'));
+  if (!res.ok) throw new Error('Failed to fetch featured projects');
   let data = await res.json();
   if (!Array.isArray(data)) data = [];
-  data = data.sort((a: FeaturedProject, b: FeaturedProject) =>
-    new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime()
-  );
-  return data.slice(0, 3).map((p: any) => ({
+  return data.map((p: any) => ({
     id: p.id,
     title: p.title,
     description: p.description,
+    excerpt: p.excerpt,
     technologies: Array.isArray(p.technologies) ? p.technologies : [],
     image: p.image_url,
     url: p.live_url,

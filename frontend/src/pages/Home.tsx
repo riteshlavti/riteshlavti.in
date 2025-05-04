@@ -141,6 +141,12 @@ function StarsBackground({ numStars = 80 }) {
   );
 }
 
+// Utility to strip HTML tags
+function stripHtml(html: string) {
+  if (!html) return '';
+  return html.replace(/<[^>]+>/g, '');
+}
+
 const Home: React.FC = () => {
   const skills = [
     { name: 'Python', icon: SiPython, color: '#3776AB' },
@@ -210,30 +216,30 @@ const Home: React.FC = () => {
         variants={sectionVariants}
         initial="hidden"
         animate={heroInView ? 'visible' : 'hidden'}
-        className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 pt-24 relative"
+        className="container mx-auto px-2 sm:px-6 lg:px-8 py-6 sm:py-8 pt-16 sm:pt-24 relative"
       >
         {/* Sparkling stars in dark mode only */}
         <div className="hidden dark:block absolute inset-0 w-full h-full z-0">
           <StarsBackground numStars={80} />
         </div>
         <div className="max-w-4xl mx-auto relative z-10">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-8">
+          <div className="flex flex-col sm:flex-col md:flex-row items-center justify-between gap-6 sm:gap-8">
             <div className="text-center md:text-left">
               <motion.h1 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
-                className="text-5xl font-bold text-gray-900 dark:text-darkTextPrimary mb-6"
+                className="text-3xl sm:text-5xl font-bold text-gray-900 dark:text-darkTextPrimary mb-4 sm:mb-6 leading-tight"
               >
                 Hi, I'm{' '}
                 <motion.span 
                   className="relative inline-block"
                 >
                   <motion.span
-                    className="absolute inset-0 -skew-y-3 bg-yellow-200 dark:bg-yellow-400/50"
+                    className="absolute inset-0 -skew-y-3 bg-[#ffe600]/80 dark:bg-[#ff3cac]/60 backdrop-blur-[2px]"
                     initial={{ width: "0%" }}
                     animate={{ width: "100%" }}
-                    transition={{ duration: 0.8, delay: 0.5 }}
+                    transition={{ duration: 2.2, delay: 0.5 }}
                     style={{ zIndex: -1 }}
                   />
                   <span className="relative text-primary-600 dark:text-primary-400">
@@ -245,7 +251,7 @@ const Home: React.FC = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.2 }}
-                className="text-xl text-gray-600 dark:text-darkTextSecondary mb-8"
+                className="text-base sm:text-xl text-gray-600 dark:text-darkTextSecondary mb-6 sm:mb-8"
               >
                 SDET | Building scalable automation for UI, API & mobile | Exploring AI across automation, development & productivity | Passionate about learning, investing & mentoring
               </motion.p>
@@ -253,7 +259,7 @@ const Home: React.FC = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.4 }}
-                className="flex justify-center md:justify-start space-x-4"
+                className="flex flex-row justify-center md:justify-start space-x-4 mt-0 sm:mt-6 mb-8 sm:mb-0"
               >
                 {[{
                   to: '/about',
@@ -290,7 +296,7 @@ const Home: React.FC = () => {
               transition={{ duration: 0.5, delay: 0.3 }}
               className="relative"
             >
-              <div className="w-64 h-64 rounded-full overflow-hidden border-4 border-primary-500 shadow-xl">
+              <div className="w-40 h-40 sm:w-64 sm:h-64 rounded-full overflow-hidden border-4 border-primary-500 shadow-xl mx-auto sm:mx-0">
                 <img
                   src={profileImage ? (profileImage.startsWith('/uploads/') ? apiUrl(profileImage) : profileImage) : "/images/profile.jfif"}
                   alt="Your Name"
@@ -298,16 +304,26 @@ const Home: React.FC = () => {
                   onError={e => { (e.target as HTMLImageElement).src = "/images/profile.jfif"; }}
                 />
               </div>
-              <div className="absolute -bottom-4 -right-4 w-16 h-16 bg-primary-500 rounded-full flex items-center justify-center text-white text-2xl">
+              <div className="absolute -bottom-2 -right-2 sm:-bottom-4 sm:-right-4 w-10 h-10 sm:w-16 sm:h-16 bg-primary-500 rounded-full flex items-center justify-center text-white text-xl sm:text-2xl">
                 <motion.span
+                  initial={{ scale: 1, rotate: 0 }}
                   animate={{
-                    rotate: [0, 14, -8, 14, -4, 10, 0],
+                    scale: [1, 2, 2, 1],
+                    rotate: [0, 0, 20, -12, 18, -6, 10, 0, 0],
                   }}
                   transition={{
-                    duration: 1,
-                    repeat: 3,
-                    repeatType: "reverse",
+                    scale: { duration: 3.2, times: [0, 0.2, 0.9, 1] },
+                    rotate: { duration: 3.2, times: [0, 0.2, 0.35, 0.5, 0.65, 0.8, 0.85, 0.9, 1] },
                   }}
+                  whileTap={{
+                    scale: [1, 2, 2, 1],
+                    rotate: [0, 0, 20, -12, 18, -6, 10, 0, 0],
+                    transition: {
+                      scale: { duration: 3.2, times: [0, 0.2, 0.9, 1] },
+                      rotate: { duration: 3.2, times: [0, 0.2, 0.35, 0.5, 0.65, 0.8, 0.85, 0.9, 1] },
+                    }
+                  }}
+                  style={{ display: 'inline-block', cursor: 'pointer', zIndex: 2 }}
                 >
                   👋
                 </motion.span>
@@ -323,7 +339,7 @@ const Home: React.FC = () => {
         variants={sectionVariants}
         initial="hidden"
         animate={skillsInView ? 'visible' : 'hidden'}
-        className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-24"
+        className="container mx-auto px-2 sm:px-6 lg:px-8 py-6 sm:py-8 mt-12 sm:mt-24"
       >
         <div className="max-w-4xl mx-auto">
           <h2 className="text-xl font-bold text-center mb-6">
@@ -334,7 +350,7 @@ const Home: React.FC = () => {
             </span>
           </h2>
           <motion.div
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+            className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 sm:gap-4"
             variants={staggerContainer}
             initial="hidden"
             animate={skillsInView ? 'visible' : 'hidden'}
@@ -364,7 +380,7 @@ const Home: React.FC = () => {
         variants={sectionVariants}
         initial="hidden"
         animate={projectsInView ? 'visible' : 'hidden'}
-        className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-24"
+        className="container mx-auto px-2 sm:px-6 lg:px-8 py-6 sm:py-8 mt-12 sm:mt-24"
       >
         <div className="max-w-4xl mx-auto">
           <h2 className="text-xl font-bold text-center mb-6">
@@ -375,13 +391,31 @@ const Home: React.FC = () => {
             </span>
           </h2>
           <motion.div
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 justify-center"
+            className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 sm:gap-8 justify-center"
             variants={staggerContainer}
             initial="hidden"
             animate={projectsInView ? 'visible' : 'hidden'}
           >
             {projectsLoading ? (
-              <div className="col-span-full text-center py-8 text-gray-500 dark:text-gray-400">Loading projects...</div>
+              Array.from({ length: 3 }).map((_, idx) => (
+                <div key={idx} className="bg-white dark:bg-darkSurface rounded-lg shadow-md p-0 flex flex-col h-full animate-pulse w-full">
+                  <div className="p-2 pb-0">
+                    <div className="w-full h-40 bg-gray-200 dark:bg-gray-700 rounded-t-lg mb-2" />
+                  </div>
+                  <div className="p-3 flex flex-col flex-1">
+                    <div className="flex flex-wrap gap-1 mb-1">
+                      <div className="h-4 w-12 bg-gray-200 dark:bg-gray-700 rounded-full" />
+                      <div className="h-4 w-8 bg-gray-200 dark:bg-gray-700 rounded-full" />
+                    </div>
+                    <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-1" />
+                    <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-full mb-2" />
+                    <div className="flex gap-1 mt-auto">
+                      <div className="h-6 w-16 bg-gray-200 dark:bg-gray-700 rounded" />
+                      <div className="h-6 w-16 bg-gray-200 dark:bg-gray-700 rounded" />
+                    </div>
+                  </div>
+                </div>
+              ))
             ) : projectsError ? (
               <div className="col-span-full text-center py-8 text-red-500">{projectsError}</div>
             ) : featuredProjects.length === 0 ? (
@@ -390,6 +424,32 @@ const Home: React.FC = () => {
               // Determine the main link for the card and title
               const mainUrl = project.url || project.liveUrl || project.githubUrl || '';
               const isExternal = !!mainUrl;
+              // Fallback gradient if image is missing
+              const fallbackGradient = 'radial-gradient(circle at 60% 40%, #a5b4fc 0%, #f0abfc 60%, #f9fafb 100%)';
+              const hasImage = !!project.image;
+              const imagePreview = (
+                <div className="relative w-full h-40 flex items-stretch justify-center rounded-t-lg overflow-hidden"
+                  style={{ background: !hasImage ? fallbackGradient : undefined }}>
+                  {hasImage && (
+                    <img
+                      src={project.image}
+                      alt=""
+                      aria-hidden="true"
+                      className="absolute inset-0 w-full h-full object-cover blur-lg scale-110 brightness-75 z-0"
+                    />
+                  )}
+                  {hasImage && (
+                    <img
+                      src={project.image}
+                      alt={project.title}
+                      className="relative z-10 max-h-full max-w-full h-full object-contain"
+                    />
+                  )}
+                  {!hasImage && (
+                    <span className="relative z-10 text-gray-400 text-lg">No Image</span>
+                  )}
+                </div>
+              );
               return (
                 <div key={project.id || project.title}>
                   {isExternal ? (
@@ -407,13 +467,7 @@ const Home: React.FC = () => {
                         whileTap={{ scale: 0.98 }}
                         className="bg-white dark:bg-darkSurface rounded-lg shadow-md hover:shadow-lg transition-shadow p-0 flex flex-col h-full cursor-pointer focus:ring-2 focus:ring-primary-500 outline-none hover:shadow-xl hover:-translate-y-1 hover:border-primary-400 dark:hover:border-darkPrimaryAccent border border-transparent max-w-sm mx-auto"
                       >
-                        <div className="p-2 pb-0">
-                          <img
-                            src={project.image}
-                            alt={project.title}
-                            className="w-full h-40 object-cover rounded-t-lg border-b border-gray-100 dark:border-darkBorder"
-                          />
-                        </div>
+                        {imagePreview}
                         <div className="p-3 flex flex-col flex-1">
                           <div className="flex flex-wrap gap-1 mb-1">
                             {project.technologies.map((tech) => (
@@ -431,7 +485,7 @@ const Home: React.FC = () => {
                             </span>
                           </h3>
                           <p className="text-xs text-gray-600 dark:text-darkTextSecondary mb-2 line-clamp-3">
-                            {project.description}
+                            {stripHtml(project.excerpt && project.excerpt.trim() !== '' ? project.excerpt : project.description)}
                           </p>
                           <div className="flex gap-1 mt-auto">
                             {project.githubUrl && project.githubUrl !== '' && (
@@ -467,13 +521,7 @@ const Home: React.FC = () => {
                       whileTap={{ scale: 0.98 }}
                       className="bg-white dark:bg-darkSurface rounded-lg shadow-md hover:shadow-lg transition-shadow p-0 flex flex-col h-full cursor-pointer focus:ring-2 focus:ring-primary-500 outline-none hover:shadow-xl hover:-translate-y-1 hover:border-primary-400 dark:hover:border-darkPrimaryAccent border border-transparent max-w-sm mx-auto"
                     >
-                      <div className="p-2 pb-0">
-                        <img
-                          src={project.image}
-                          alt={project.title}
-                          className="w-full h-40 object-cover rounded-t-lg border-b border-gray-100 dark:border-darkBorder"
-                        />
-                      </div>
+                      {imagePreview}
                       <div className="p-3 flex flex-col flex-1">
                         <div className="flex flex-wrap gap-1 mb-1">
                           {project.technologies.map((tech) => (
@@ -489,7 +537,7 @@ const Home: React.FC = () => {
                           {project.title}
                         </h3>
                         <p className="text-xs text-gray-600 dark:text-darkTextSecondary mb-2 line-clamp-3">
-                          {project.description}
+                          {stripHtml(project.excerpt && project.excerpt.trim() !== '' ? project.excerpt : project.description)}
                         </p>
                         <div className="flex gap-1 mt-auto">
                           {project.githubUrl && project.githubUrl !== '' && (
@@ -547,7 +595,7 @@ const Home: React.FC = () => {
         variants={sectionVariants}
         initial="hidden"
         animate={blogInView ? 'visible' : 'hidden'}
-        className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 mt-24"
+        className="container mx-auto px-2 sm:px-6 lg:px-8 py-6 sm:py-8 mt-12 sm:mt-24"
       >
         <div className="max-w-4xl mx-auto px-2 sm:px-4 lg:px-8">
           <h2 className="text-xl font-bold text-center mb-6">
@@ -558,68 +606,105 @@ const Home: React.FC = () => {
             </span>
           </h2>
           <motion.div
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 justify-center"
+            className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 sm:gap-8 justify-center"
             variants={staggerContainer}
             initial="hidden"
             animate={blogInView ? 'visible' : 'hidden'}
           >
             {blogsLoading ? (
-              <div className="col-span-full text-center py-8 text-gray-500 dark:text-gray-400">Loading blogs...</div>
+              Array.from({ length: 3 }).map((_, idx) => (
+                <div key={idx} className="bg-white dark:bg-darkSurface rounded-lg shadow-md p-0 flex flex-col h-full animate-pulse w-full">
+                  <div className="p-2 pb-0">
+                    <div className="w-full h-40 bg-gray-200 dark:bg-gray-700 rounded-t-lg mb-2" />
+                  </div>
+                  <div className="p-3 flex flex-col flex-1">
+                    <div className="flex flex-wrap gap-1 mb-1">
+                      <div className="h-4 w-12 bg-gray-200 dark:bg-gray-700 rounded-full" />
+                      <div className="h-4 w-8 bg-gray-200 dark:bg-gray-700 rounded-full" />
+                    </div>
+                    <div className="h-5 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-1" />
+                    <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-full mb-2" />
+                    <div className="flex gap-1 mt-auto">
+                      <div className="h-6 w-20 bg-gray-200 dark:bg-gray-700 rounded" />
+                    </div>
+                  </div>
+                </div>
+              ))
             ) : blogsError ? (
               <div className="col-span-full text-center py-8 text-red-500">{blogsError}</div>
             ) : recentPosts.length === 0 ? (
               <div className="col-span-full text-center py-8 text-gray-500 dark:text-gray-400">No blogs found.</div>
-            ) : recentPosts.map((post) => (
-              <Link
-                key={post.slug}
-                to={`/blog/${post.slug}`}
-                className="group"
-                tabIndex={0}
-                style={{ textDecoration: 'none' }}
-              >
-                <motion.div
-                  variants={staggerItem}
-                  whileHover={{ scale: 1.045 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="bg-white dark:bg-darkSurface rounded-lg shadow-md hover:shadow-lg transition-shadow p-0 flex flex-col h-full cursor-pointer focus:ring-2 focus:ring-primary-500 outline-none group-hover:shadow-xl group-hover:-translate-y-1 group-hover:border-primary-400 dark:group-hover:border-darkPrimaryAccent border border-transparent max-w-sm mx-auto"
+            ) : recentPosts.map((post) => {
+              // Fallback gradient if image is missing
+              const fallbackGradient = 'radial-gradient(circle at 60% 40%, #a5b4fc 0%, #f0abfc 60%, #f9fafb 100%)';
+              const hasImage = !!post.image;
+              return (
+                <Link
+                  key={post.slug}
+                  to={`/blog/${post.slug}`}
+                  className="group"
+                  tabIndex={0}
+                  style={{ textDecoration: 'none' }}
                 >
-                  {post.image && (
-                    <div className="p-2 pb-0">
-                      <img
-                        src={post.image}
-                        alt={post.title}
-                        className="w-full h-40 object-cover rounded-t-lg border-b border-gray-100 dark:border-darkBorder"
-                      />
+                  <motion.div
+                    variants={staggerItem}
+                    whileHover={{ scale: 1.045 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="bg-white dark:bg-darkSurface rounded-lg shadow-md hover:shadow-lg transition-shadow p-0 flex flex-col h-full cursor-pointer focus:ring-2 focus:ring-primary-500 outline-none group-hover:shadow-xl group-hover:-translate-y-1 group-hover:border-primary-400 dark:group-hover:border-darkPrimaryAccent border border-transparent max-w-sm mx-auto"
+                  >
+                    <div className="relative w-full h-40 flex items-stretch justify-center rounded-t-lg overflow-hidden"
+                      style={{ background: !hasImage ? fallbackGradient : undefined }}>
+                      {hasImage && (
+                        <img
+                          src={post.image}
+                          alt=""
+                          aria-hidden="true"
+                          className="absolute inset-0 w-full h-full object-cover blur-lg scale-110 brightness-75 z-0"
+                        />
+                      )}
+                      {hasImage && (
+                        <img
+                          src={post.image}
+                          alt={post.title}
+                          className="relative z-10 max-h-full max-w-full h-full object-contain"
+                        />
+                      )}
+                      {!hasImage && (
+                        <span className="relative z-10 text-gray-400 text-lg">No Image</span>
+                      )}
                     </div>
-                  )}
-                  <div className="p-3 flex flex-col flex-1">
-                    <div className="flex flex-wrap gap-1 mb-1">
-                      {post.tags && post.tags.map((tag) => (
-                        <span
-                          key={tag}
-                          className="px-1.5 py-0.5 bg-primary-100 dark:bg-darkBorder text-primary-800 dark:text-darkPrimaryAccent rounded-full text-[10px] font-semibold"
-                        >
-                          {tag}
-                        </span>
-                      ))}
+                    <div className="p-3 flex flex-col flex-1">
+                      <div className="flex flex-wrap gap-1 mb-1">
+                        {post.tags && post.tags.map((tag) => (
+                          <span
+                            key={tag}
+                            className="px-1.5 py-0.5 bg-primary-100 dark:bg-darkBorder text-primary-800 dark:text-darkPrimaryAccent rounded-full text-[10px] font-semibold"
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                      <h3 className="text-base font-semibold text-gray-900 dark:text-darkTextPrimary mb-1 group-hover:text-primary-600 dark:group-hover:text-darkPrimaryAccent line-clamp-2">
+                        {post.title}
+                      </h3>
+                      <div className="flex items-center text-xs text-gray-500 dark:text-darkTextSecondary mb-1">
+                        <span>{post.date}</span>
+                        <span className="mx-1">•</span>
+                        <span>{post.readTime}</span>
+                      </div>
+                      <p className="text-xs text-gray-600 dark:text-darkTextSecondary mb-2 line-clamp-3">
+                        {post.excerpt && post.excerpt.trim() !== '' ? post.excerpt : post.content}
+                      </p>
+                      <span
+                        className="text-primary-600 dark:text-darkPrimaryAccent hover:text-primary-700 dark:hover:text-darkPrimaryHover font-medium mt-auto inline-block text-xs"
+                      >
+                        Read More →
+                      </span>
                     </div>
-                    <h3 className="text-base font-semibold text-gray-900 dark:text-darkTextPrimary mb-1 group-hover:text-primary-600 dark:group-hover:text-darkPrimaryAccent line-clamp-2">
-                      {post.title}
-                    </h3>
-                    <div className="flex items-center text-xs text-gray-500 dark:text-darkTextSecondary mb-1">
-                      <span>{post.date}</span>
-                      <span className="mx-1">•</span>
-                      <span>{post.readTime}</span>
-                    </div>
-                    <span
-                      className="text-primary-600 dark:text-darkPrimaryAccent hover:text-primary-700 dark:hover:text-darkPrimaryHover font-medium mt-auto inline-block text-xs"
-                    >
-                      Read More →
-                    </span>
-                  </div>
-                </motion.div>
-              </Link>
-            ))}
+                  </motion.div>
+                </Link>
+              );
+            })}
           </motion.div>
         </div>
       </motion.section>

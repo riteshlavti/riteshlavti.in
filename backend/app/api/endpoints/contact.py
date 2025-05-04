@@ -13,6 +13,8 @@ from slowapi.util import get_remote_address
 from fastapi import Request
 from app.api.endpoints.auth import get_current_user
 from app.models.user import User
+from app.core.supabase_client import upload_to_supabase
+import time
 
 router = APIRouter()
 
@@ -43,7 +45,9 @@ def create_contact_info(contact_info: ContactInfoCreate, db: Session = Depends(g
     existing_info = db.query(ContactInfo).first()
     if existing_info:
         raise HTTPException(status_code=400, detail="Contact information already exists")
-    
+    if (contact_info.profile_image and not contact_info.profile_image.startswith('http')) or \
+       (contact_info.contact_profile_image and not contact_info.contact_profile_image.startswith('http')):
+        raise HTTPException(status_code=400, detail="Profile images must be public Supabase URLs. Upload the image first and use the returned URL.")
     db_contact_info = ContactInfo(**contact_info.dict())
     db.add(db_contact_info)
     db.commit()
@@ -59,11 +63,17 @@ def upsert_contact_info(
     db_contact_info = db.query(ContactInfo).first()
     if not db_contact_info:
         # If no row exists, create one
+        if (contact_info.profile_image and not contact_info.profile_image.startswith('http')) or \
+           (contact_info.contact_profile_image and not contact_info.contact_profile_image.startswith('http')):
+            raise HTTPException(status_code=400, detail="Profile images must be public Supabase URLs. Upload the image first and use the returned URL.")
         db_contact_info = ContactInfo(**contact_info.dict(exclude_unset=True))
         db.add(db_contact_info)
     else:
         # If row exists, update it
         update_data = contact_info.dict(exclude_unset=True)
+        if (update_data.get('profile_image') and not update_data['profile_image'].startswith('http')) or \
+           (update_data.get('contact_profile_image') and not update_data['contact_profile_image'].startswith('http')):
+            raise HTTPException(status_code=400, detail="Profile images must be public Supabase URLs. Upload the image first and use the returned URL.")
         for field, value in update_data.items():
             setattr(db_contact_info, field, value)
     db.commit()
