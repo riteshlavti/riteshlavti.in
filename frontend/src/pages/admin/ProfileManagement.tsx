@@ -65,12 +65,15 @@ const ProfileManagement: React.FC = () => {
         headers: { 'Authorization': `Bearer ${localStorage.getItem('authToken')}` }
       });
       const uploadData = await uploadRes.json();
-      if (uploadRes.ok && uploadData.file_path) {
-        // Update contact info with new image path
-        const imageUrl = uploadData.file_path.replace(/^.*uploads/, '/uploads');
+      if (uploadRes.ok && uploadData.url) {
+        // Use the returned public Supabase URL directly
+        const imageUrl = uploadData.url;
         const updateRes = await fetch(apiUrl('/contact/'), {
           method: 'PUT',
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('authToken')}` },
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+            'Content-Type': 'application/json'
+          },
           body: JSON.stringify(type === 'hero' ? { profile_image: imageUrl } : { contact_profile_image: imageUrl }),
         });
         if (updateRes.ok) {

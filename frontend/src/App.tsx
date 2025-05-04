@@ -19,6 +19,8 @@ import SkillManagement from './pages/admin/SkillManagement';
 import ProfileManagement from './pages/admin/ProfileManagement';
 import TestimonialManagement from './pages/admin/TestimonialManagement';
 import BackToTop from './components/BackToTop';
+import Projects from './pages/Projects';
+import ProjectDetail from './pages/ProjectDetail';
 
 function App() {
   return (
@@ -35,6 +37,8 @@ function App() {
                   <Route path="/blog" element={<Blog />} />
                   <Route path="/blog/:id" element={<BlogPost />} />
                   <Route path="/contact" element={<Contact />} />
+                  <Route path="/projects" element={<Projects />} />
+                  <Route path="/projects/:id" element={<ProjectDetail />} />
                   {/* Admin Routes */}
                   <Route
                     path="/admin"

@@ -14,3 +14,4 @@ python-slugify
 bcrypt
 psycopg2-binary
 slowapi
+supabase

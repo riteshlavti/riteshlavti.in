@@ -62,7 +62,7 @@ const TestimonialsSlider: React.FC = () => {
           <button
             aria-label="Previous testimonial"
             onClick={prev}
-            className="absolute left-0 -ml-16 sm:-ml-6 top-1/2 -translate-y-1/2 z-20 bg-white dark:bg-darkSurface border border-gray-200 dark:border-darkBorder rounded-full p-2 shadow hover:bg-gray-100 dark:hover:bg-darkBorder transition-colors"
+            className="absolute left-2 sm:left-0 sm:-ml-6 top-1/2 -translate-y-1/2 z-20 bg-white dark:bg-darkSurface border border-gray-200 dark:border-darkBorder rounded-full p-2 shadow hover:bg-gray-100 dark:hover:bg-darkBorder transition-colors"
           >
             <FiChevronLeft size={24} />
           </button>
@@ -142,7 +142,7 @@ const TestimonialsSlider: React.FC = () => {
           <button
             aria-label="Next testimonial"
             onClick={next}
-            className="absolute right-0 -mr-16 sm:-mr-6 top-1/2 -translate-y-1/2 z-20 bg-white dark:bg-darkSurface border border-gray-200 dark:border-darkBorder rounded-full p-2 shadow hover:bg-gray-100 dark:hover:bg-darkBorder transition-colors"
+            className="absolute right-2 sm:right-0 sm:-mr-6 top-1/2 -translate-y-1/2 z-20 bg-white dark:bg-darkSurface border border-gray-200 dark:border-darkBorder rounded-full p-2 shadow hover:bg-gray-100 dark:hover:bg-darkBorder transition-colors"
           >
             <FiChevronRight size={24} />
           </button>

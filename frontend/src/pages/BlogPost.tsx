@@ -171,10 +171,21 @@ const BlogPost: React.FC = () => {
   if (loading) {
     return (
       <div className="container mx-auto px-8 sm:px-12 lg:px-16 py-8">
-        <div className="max-w-3xl mx-auto text-center">
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-            Loading...
-          </h1>
+        <div className="max-w-3xl mx-auto">
+          <div className="animate-pulse">
+            <div className="h-10 bg-gray-200 dark:bg-gray-700 rounded w-2/3 mb-6" />
+            <div className="flex items-center gap-4 mb-8">
+              <div className="w-10 h-10 bg-gray-200 dark:bg-gray-700 rounded-full" />
+              <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/4" />
+            </div>
+            <div className="w-full h-64 bg-gray-200 dark:bg-gray-700 rounded-xl mb-8" />
+            <div className="space-y-4">
+              <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-5/6" />
+              <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-4/6" />
+              <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-3/6" />
+              <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded w-2/6" />
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -202,14 +213,14 @@ const BlogPost: React.FC = () => {
   }
 
   const renderComment = (comment: Comment, isReply: boolean = false) => (
-    <div key={comment.id} className={`flex space-x-4 ${isReply ? 'ml-12' : ''}`}>
+    <div key={comment.id} className={`flex space-x-3 sm:space-x-4 ${isReply ? 'ml-6 sm:ml-12' : ''}`}>
       <img 
         src={comment.avatar || '/images/author-avatar.jpg'} 
         alt={comment.author} 
-        className="w-10 h-10 rounded-full"
+        className="w-8 h-8 sm:w-10 sm:h-10 rounded-full"
       />
       <div className="flex-1">
-        <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
+        <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3 sm:p-4">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center space-x-2">
               <span className="font-medium text-gray-900 dark:text-white">
@@ -250,19 +261,19 @@ const BlogPost: React.FC = () => {
           )}
         </div>
         {!isReply && replyingTo === comment.id && (
-          <form onSubmit={(e) => handleSubmitReply(comment.id, comment.author, e)} className="mt-4">
-            <div className="flex items-start space-x-4">
+          <form onSubmit={(e) => handleSubmitReply(comment.id, comment.author, e)} className="mt-3">
+            <div className="flex items-start space-x-3 sm:space-x-4">
               <img 
                 src="/images/author-avatar.jpg" 
                 alt="Your avatar" 
-                className="w-8 h-8 rounded-full"
+                className="w-7 h-7 sm:w-8 sm:h-8 rounded-full"
               />
               <div className="flex-1">
                 <textarea
                   value={replyContent}
                   onChange={(e) => setReplyContent(e.target.value)}
                   placeholder="Write a reply..."
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent dark:bg-gray-800 dark:text-white"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent dark:bg-gray-800 dark:text-white text-sm sm:text-base"
                   rows={2}
                 />
                 <div className="mt-2 flex justify-end space-x-2">
@@ -272,14 +283,14 @@ const BlogPost: React.FC = () => {
                       setReplyingTo(null);
                       setReplyContent('');
                     }}
-                    className="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+                    className="px-3 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 text-sm sm:text-base"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={isSubmitting || !replyContent.trim()}
-                    className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-3 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
                   >
                     {isSubmitting ? 'Posting...' : 'Post Reply'}
                   </button>
@@ -293,7 +304,7 @@ const BlogPost: React.FC = () => {
   );
 
   return (
-    <div className="container mx-auto px-8 sm:px-12 lg:px-16 py-8 relative">
+    <div className="container mx-auto px-4 sm:px-12 lg:px-16 py-8 relative">
       {/* Progress Indicator above BackToTop button */}
       <div style={{position: 'fixed', right: 24, bottom: 76, zIndex: 1000}}>
         <div className="relative flex items-center justify-center">
@@ -325,7 +336,7 @@ const BlogPost: React.FC = () => {
         </div>
       </div>
       {/* Back Button aligned with content and styled */}
-      <div className="max-w-3xl mx-auto mb-8">
+      <div className="max-w-3xl w-full mx-auto mb-8 px-0">
           <Link 
             to="/blog"
           className="inline-flex items-center px-4 py-2 bg-primary-600 text-white rounded-lg shadow hover:bg-primary-700 transition-colors font-semibold text-base"
@@ -337,11 +348,11 @@ const BlogPost: React.FC = () => {
           </Link>
         </div>
       {/* Main Article Section with Progress Bar */}
-      <div className="max-w-3xl mx-auto flex flex-row relative" style={{alignItems: 'flex-start'}}>
+      <div className="max-w-3xl w-full mx-auto flex flex-row relative px-0" style={{alignItems: 'flex-start'}}>
         {/* Article Section Only (header, image, content, tags) */}
         <div className="flex-1" ref={articleRef}>
         {/* Article Header */}
-        <header className="mb-8">
+        <header className="mb-6 sm:mb-8">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
               <span>{formatDate(blogPost.date || (blogPost.created_at ? blogPost.created_at.slice(0, 10) : ''))}</span>
@@ -368,22 +379,22 @@ const BlogPost: React.FC = () => {
               )}
             </button>
           </div>
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+          <h1 className="text-2xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-3 sm:mb-4">
             {blogPost.title}
           </h1>
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-3 sm:space-x-4">
             <img 
               src={blogPost.author?.avatar || blogPost.author_avatar || '/images/author-avatar.jpg'} 
               alt={blogPost.author?.name || blogPost.author_name || 'Author'} 
-              className="w-10 h-10 rounded-full"
+              className="w-8 h-8 sm:w-10 sm:h-10 rounded-full"
             />
-            <span className="text-gray-700 dark:text-gray-300">
+            <span className="text-sm sm:text-base text-gray-700 dark:text-gray-300">
               {blogPost.author?.name || blogPost.author_name || 'Unknown Author'}
             </span>
           </div>
         </header>
           {/* Content & Tags with Image at the start */}
-          <div className="relative flex flex-col items-center gap-8">
+          <div className="relative flex flex-col items-center gap-6 sm:gap-8">
             {/* Featured Image at the top, centered */}
             {blogPost.featured_image && (
               <div className="w-full flex justify-center">

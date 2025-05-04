@@ -11,6 +11,8 @@ from app.core.file_utils import save_upload_file
 from app.core.config import settings
 from app.api.endpoints.auth import get_current_user
 from app.models.user import User
+from app.core.supabase_client import upload_to_supabase
+import time
 
 router = APIRouter()
 
@@ -97,10 +99,9 @@ async def create_blog_post(
     # Save image if provided
     featured_image = None
     if image:
-        image_path = await save_upload_file(image, settings.BLOG_IMAGES_DIR, "blog")
-        # Always use forward slashes and only the filename for the URL
-        filename = image_path.replace("\\", "/").split("/")[-1]
-        featured_image = f"/uploads/blog/{filename}"
+        contents = await image.read()
+        filename = f"blog/{int(time.time())}_{image.filename.replace(' ', '_')}"
+        featured_image = upload_to_supabase("blog-images", filename, contents, image.content_type)
     # Handle related_posts as list
     related_posts_list = related_posts.split(',') if related_posts else []
     base_slug = slugify(title)
@@ -211,9 +212,9 @@ async def update_blog_post(
         db_post.tags = tag_objs
     # Handle image upload
     if image:
-        image_path = await save_upload_file(image, settings.BLOG_IMAGES_DIR, "blog")
-        filename = image_path.replace("\\", "/").split("/")[-1]
-        db_post.featured_image = f"/uploads/blog/{filename}"
+        contents = await image.read()
+        filename = f"blog/{int(time.time())}_{image.filename.replace(' ', '_')}"
+        db_post.featured_image = upload_to_supabase("blog-images", filename, contents, image.content_type)
     db.commit()
     db.refresh(db_post)
     result = db_post.__dict__.copy()
