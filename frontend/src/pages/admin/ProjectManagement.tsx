@@ -126,7 +126,8 @@ const ProjectManagement: React.FC = () => {
         is_featured: !!currentProject.is_featured,
         featured_order: currentProject.is_featured ? currentProject.featured_order : null,
       };
-      const url = isEditing ? apiUrl(`/projects/${currentProject.id}`) : apiUrl('/projects');
+      const project_id = String(currentProject.id)
+      const url = isEditing ? apiUrl(`/projects/${project_id}`) : apiUrl('/projects');
       const method = isEditing ? 'PUT' : 'POST';
       const response = await fetch(url, {
         method,
@@ -176,17 +177,40 @@ const ProjectManagement: React.FC = () => {
     }
   };
 
-  const handleEdit = (project: Project) => {
-    resetForm();
-    setCurrentProject({
-      ...project,
-      is_featured: !!project.is_featured,
-      featured_order: project.featured_order ?? undefined,
-    });
-    setTechnologies(project.technologies.join(', '));
-    setExcerpt(project.excerpt || '');
-    setSelectedImages([]);
-    setIsEditing(true);
+  const handleEdit = async (project: Project) => {
+    try {
+      const response = await fetch(apiUrl(`/projects/${project.id}`), {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+        },
+      });
+  
+      if (response.ok) {
+        const data = await response.json();
+  
+        setCurrentProject({
+          id: String(data.id),
+          title: data.title || '',
+          description: data.description || '',
+          image_url: data.image_url || '',
+          github_url: data.github_url || '',
+          live_url: data.live_url || '',
+          is_featured: !!data.is_featured,
+          featured_order: data.featured_order ?? undefined,
+          technologies: data.technologies || [],
+          excerpt: data.excerpt || '',
+        });
+  
+        setTechnologies(data.technologies?.join(', ') || '');
+        setExcerpt(data.excerpt || '');
+        setSelectedImages([]);
+        setIsEditing(true);
+      } else {
+        showToast('Failed to fetch project details', 'error');
+      }
+    } catch (error) {
+      showToast('Failed to fetch project details', 'error');
+    }
   };
 
   const resetForm = () => {
