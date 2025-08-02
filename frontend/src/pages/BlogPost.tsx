@@ -3,6 +3,12 @@ import { useParams, Link } from 'react-router-dom';
 import { blogPosts as staticBlogPosts } from '../data/blogData';
 import { FaXTwitter, FaWhatsapp } from 'react-icons/fa6';
 import { apiUrl } from '../api';
+import ReactMarkdown, { Components } from 'react-markdown';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import type { SyntaxHighlighterProps } from 'react-syntax-highlighter';
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/cjs/styles/prism';
+import remarkGfm from 'remark-gfm';
+import TurndownService from 'turndown';
 
 interface Comment {
   id: string;
@@ -24,6 +30,146 @@ function formatDate(dateStr: string): string {
   if (isNaN(d.getTime())) return dateStr;
   return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 }
+
+const htmlToMarkdown = (html: string): string => {
+  const turndown = new TurndownService({
+    codeBlockStyle: 'fenced',
+    headingStyle: 'atx'
+  });
+
+  turndown.addRule('quillCodeBlocks', {
+    filter: (node) => node.nodeName === 'PRE' && node.classList.contains('ql-syntax'),
+    replacement: (content) => {
+      const cleanedContent = content.replace(/\n+$/, '');
+      return `\n\`\`\`text\n${cleanedContent}\n\`\`\`\n`;
+    }
+  });
+
+  return turndown.turndown(html);
+};
+
+interface CodeProps extends React.HTMLAttributes<HTMLElement> {
+  inline?: boolean;
+  className?: string;
+  children?: React.ReactNode;
+  node?: any;
+}
+
+const SimpleCodeBlock = ({ children, className = '', ...props }: CodeProps) => {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = () => {
+    const codeContent = String(children).replace(/\n$/, '');
+    navigator.clipboard.writeText(codeContent)
+      .then(() => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      })
+      .catch(err => console.error('Copy failed:', err));
+  };
+
+  return (
+    <div className="my-6">
+      <div className="max-w-2xl mx-auto rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900 shadow-sm overflow-hidden">
+        
+        {/* Header */}
+        <div className="bg-gradient-to-r from-indigo-500 to-violet-500 px-3 py-0.5 flex items-center justify-between">
+          <div className="flex space-x-1.5">
+            <div className="w-2 h-2 rounded-full bg-red-500" />
+            <div className="w-2 h-2 rounded-full bg-yellow-400" />
+            <div className="w-2 h-2 rounded-full bg-green-500" />
+          </div>
+
+          <button
+            onClick={handleCopy}
+            className={`transition-all rounded-full w-5 h-5 flex items-center justify-center text-white/90 hover:bg-white/20 ${
+              copied ? 'bg-green-500 text-white' : ''
+            }`}
+            aria-label="Copy code"
+          >
+            {copied ? (
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+            ) : (
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 012 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"
+                />
+              </svg>
+            )}
+          </button>
+        </div>
+
+        {/* Code content */}
+        <pre className="p-4 overflow-x-auto text-sm font-mono text-zinc-800 dark:text-zinc-200">
+          <code className={className} {...props}>
+            {children}
+          </code>
+        </pre>
+      </div>
+    </div>
+  );
+};
+
+
+
+const CodeRenderer = ({ inline, className, children, ...props }: CodeProps) => {
+  if (inline) {
+    return (
+      <code 
+        className={`bg-zinc-200 dark:bg-zinc-700 px-1.5 py-0.5 rounded text-sm text-indigo-600 dark:text-indigo-300 font-mono ${className || ''}`}
+        {...props}
+      >
+        {children}
+      </code>
+    );
+  }
+
+  return (
+    <SimpleCodeBlock className={className} {...props}>
+      {children}
+    </SimpleCodeBlock>
+  );
+};
+
+
+// Custom components to render Markdown elements
+const components: Components = {
+  h1: ({ node, ...props }) => <h2 className="text-3xl font-bold mt-8 mb-4" {...props} />,
+  h2: ({ node, ...props }) => <h3 className="text-2xl font-bold mt-6 mb-3" {...props} />,
+  h3: ({ node, ...props }) => <h4 className="text-xl font-bold mt-4 mb-2" {...props} />,
+  p: ({ node, ...props }) => <p className="mb-4 leading-relaxed" {...props} />,
+  ul: ({ node, ...props }) => <ul className="list-disc list-inside mb-4 ml-4" {...props} />,
+  ol: ({ node, ...props }) => <ol className="list-decimal list-inside mb-4 ml-4" {...props} />,
+  li: ({ node, ...props }) => <li className="mb-1" {...props} />,
+  img: ({ node, src, alt, ...props }) => (
+    <img
+      className="my-6 rounded-lg shadow-md max-w-full h-auto mx-auto"
+      src={src}
+      alt={alt || ''} // Empty string if no alt provided (for decorative images)
+      loading="lazy"
+      {...props}
+    />
+  ),
+
+  // Fixed anchor component with accessible content
+  a: ({ node, children, href, ...props }) => (
+    <a
+      className="text-primary-600 dark:text-primary-400 hover:underline"
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      {...props}
+    >
+      {children || href || 'External link'} 
+    </a>
+  ),
+  code: CodeRenderer
+};
 
 const BlogPost: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -408,7 +554,12 @@ const BlogPost: React.FC = () => {
             <div className="flex-1 w-full" ref={articleRef}>
         {/* Article Content */}
               <article className="prose dark:prose-invert prose-lg mx-auto">
-          <div dangerouslySetInnerHTML={{ __html: blogPost.content }} />
+                <ReactMarkdown 
+                    remarkPlugins={[remarkGfm]} 
+                    components={components}
+                  >
+                    {htmlToMarkdown(blogPost.content)}
+                  </ReactMarkdown>
         </article>
         {/* Tags */}
         <div className="mt-8">
