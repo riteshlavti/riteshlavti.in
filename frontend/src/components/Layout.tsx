@@ -292,7 +292,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 <span className="text-xs text-gray-400 mb-1">Connect with me</span>
                 <div className="flex space-x-4">
                   <a
-                    href="https://www.linkedin.com/in/ritesh-lavti/"
+                    href="https://www.linkedin.com/in/riteshlavti/"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-200 bg-gray-100 dark:bg-gray-800 p-3 rounded-full shadow-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500"

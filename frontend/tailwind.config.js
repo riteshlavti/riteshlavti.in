@@ -6,6 +6,10 @@ module.exports = {
   darkMode: 'class',
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['Inter', 'ui-sans-serif', 'system-ui'],
+        geist: ['Geist Sans', 'sans-serif'],
+      },
       colors: {
         primary: {
           50: '#eff6ff',
@@ -50,4 +54,4 @@ module.exports = {
     },
   },
   plugins: [],
-} 
+}

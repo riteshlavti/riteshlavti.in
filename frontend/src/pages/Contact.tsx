@@ -231,7 +231,7 @@ const Contact: React.FC = () => {
                   </svg>
                 </a>
                 <a
-                  href="https://topmate.io/riteshlavti"
+                  href="https://topmate.io/ritesh_lavti"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center px-3 py-2 bg-[#F3F4F6] hover:bg-[#E5E7EB] text-[#1B1C31] font-semibold rounded-lg shadow transition-colors text-base gap-2 border border-[#E5E7EB]"
