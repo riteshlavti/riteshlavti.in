@@ -70,10 +70,10 @@ const SimpleCodeBlock = ({ children, className = '', ...props }: CodeProps) => {
 
   return (
     <div className="my-6">
-      <div className="max-w-2xl mx-auto rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900 shadow-sm overflow-hidden">
-        
-        {/* Header */}
-        <div className="bg-gradient-to-r from-indigo-500 to-violet-500 px-3 py-0.5 flex items-center justify-between">
+      <div className="max-w-[720px] mx-auto rounded-xl border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900 shadow-sm overflow-hidden">
+
+        {/* Header Bar */}
+        <div className="bg-gradient-to-r from-indigo-500 to-purple-500 px-3 py-1 flex items-center justify-between">
           <div className="flex space-x-1.5">
             <div className="w-2 h-2 rounded-full bg-red-500" />
             <div className="w-2 h-2 rounded-full bg-yellow-400" />
@@ -104,8 +104,8 @@ const SimpleCodeBlock = ({ children, className = '', ...props }: CodeProps) => {
           </button>
         </div>
 
-        {/* Code content */}
-        <pre className="p-4 overflow-x-auto text-sm font-mono text-zinc-800 dark:text-zinc-200">
+        {/* Code Content */}
+        <pre className="p-4 overflow-x-auto text-sm font-mono text-zinc-800 dark:text-zinc-100 leading-relaxed">
           <code className={className} {...props}>
             {children}
           </code>
@@ -115,13 +115,11 @@ const SimpleCodeBlock = ({ children, className = '', ...props }: CodeProps) => {
   );
 };
 
-
-
-const CodeRenderer = ({ inline, className, children, ...props }: CodeProps) => {
+export const CodeRenderer = ({ inline, className, children, ...props }: CodeProps) => {
   if (inline) {
     return (
-      <code 
-        className={`bg-zinc-200 dark:bg-zinc-700 px-1.5 py-0.5 rounded text-sm text-indigo-600 dark:text-indigo-300 font-mono ${className || ''}`}
+      <code
+        className={`bg-zinc-200 dark:bg-zinc-700 px-1.5 py-0.5 rounded-md text-sm text-indigo-600 dark:text-indigo-300 font-mono tracking-tight ${className || ''}`}
         {...props}
       >
         {children}
@@ -139,37 +137,51 @@ const CodeRenderer = ({ inline, className, children, ...props }: CodeProps) => {
 
 // Custom components to render Markdown elements
 const components: Components = {
-  h1: ({ node, ...props }) => <h2 className="text-3xl font-bold mt-8 mb-4" {...props} />,
-  h2: ({ node, ...props }) => <h3 className="text-2xl font-bold mt-6 mb-3" {...props} />,
-  h3: ({ node, ...props }) => <h4 className="text-xl font-bold mt-4 mb-2" {...props} />,
-  p: ({ node, ...props }) => <p className="mb-4 leading-relaxed" {...props} />,
-  ul: ({ node, ...props }) => <ul className="list-disc list-inside mb-4 ml-4" {...props} />,
-  ol: ({ node, ...props }) => <ol className="list-decimal list-inside mb-4 ml-4" {...props} />,
-  li: ({ node, ...props }) => <li className="mb-1" {...props} />,
-  img: ({ node, src, alt, ...props }) => (
-    <img
-      className="my-6 rounded-lg shadow-md max-w-full h-auto mx-auto"
-      src={src}
-      alt={alt || ''} // Empty string if no alt provided (for decorative images)
-      loading="lazy"
-      {...props}
-    />
+  h1: ({ node, ...props }) => (
+    <h1 className="text-4xl font-extrabold tracking-tight mt-10 mb-6 text-gray-900 dark:text-gray-100" {...props} />
   ),
-
-  // Fixed anchor component with accessible content
+  h2: ({ node, ...props }) => (
+    <h2 className="text-3xl font-bold tracking-tight mt-8 mb-5 text-gray-900 dark:text-gray-100" {...props} />
+  ),
+  h3: ({ node, ...props }) => (
+    <h3 className="text-2xl font-semibold mt-6 mb-4 text-gray-900 dark:text-gray-100" {...props} />
+  ),
+  p: ({ node, ...props }) => (
+    <p className="mb-5 text-[17px] leading-relaxed text-gray-700 dark:text-gray-300" {...props} />
+  ),
+  ul: ({ node, ...props }) => (
+    <ul className="list-disc pl-6 mb-5 space-y-2 text-gray-700 dark:text-gray-300" {...props} />
+  ),
+  ol: ({ node, ...props }) => (
+    <ol className="list-decimal pl-6 mb-5 space-y-2 text-gray-700 dark:text-gray-300" {...props} />
+  ),
+  li: ({ node, ...props }) => (
+    <li className="ml-2 leading-relaxed" {...props} />
+  ),
   a: ({ node, children, href, ...props }) => (
     <a
-      className="text-primary-600 dark:text-primary-400 hover:underline"
+      className="text-blue-600 dark:text-blue-400 underline underline-offset-4 hover:text-blue-800 dark:hover:text-blue-300 transition-colors duration-200"
       href={href}
       target="_blank"
       rel="noopener noreferrer"
+      aria-label={`External link to ${href}`}
       {...props}
     >
-      {children || href || 'External link'} 
+      {children}
     </a>
+  ),
+  img: ({ node, src, alt, ...props }) => (
+    <img
+      src={src}
+      alt={alt || ''}
+      loading="lazy"
+      className="rounded-xl shadow-lg my-6 mx-auto border border-gray-200 dark:border-gray-700 max-w-full"
+      {...props}
+    />
   ),
   code: CodeRenderer
 };
+
 
 const BlogPost: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -553,7 +565,7 @@ const BlogPost: React.FC = () => {
             )}
             <div className="flex-1 w-full" ref={articleRef}>
         {/* Article Content */}
-              <article className="prose dark:prose-invert prose-lg mx-auto">
+              <article className="prose dark:prose-invert prose-lg mx-auto font-geist">
                 <ReactMarkdown 
                     remarkPlugins={[remarkGfm]} 
                     components={components}
